@@ -9,7 +9,7 @@ from typing import List, Optional, Union, TypeGuard, Dict
 from slack_sdk.models.blocks import InputBlock
 
 from sched_slack_bot.model.slack_body import SlackBody, SlackState
-from sched_slack_bot.utils.find_block import find_block_value
+from sched_slack_bot.utils.find_block_value import find_block_value
 from sched_slack_bot.views.datetime_selector import DatetimeSelectorType
 from sched_slack_bot.views.schedule_dialog import DISPLAY_NAME_INPUT, USERS_INPUT, CHANNEL_INPUT, FIRST_ROTATION_INPUT, \
     SECOND_ROTATION_INPUT
@@ -32,8 +32,10 @@ def get_datetime_state(state: SlackState, date_input: Dict[DatetimeSelectorType,
     raise_if_not_present(value=hour, name="hour")
     minute = find_block_value(state=state, block_id=date_input[DatetimeSelectorType.MINUTE].block_id)
     raise_if_not_present(value=minute, name="minute")
+
     date = datetime.date.fromisoformat(date_string)
     logger.debug(f"{date=}, {hour=}, {minute=}")
+
     return datetime.datetime(day=date.day,
                              month=date.month,
                              year=date.year,
