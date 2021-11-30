@@ -17,15 +17,22 @@ class _SlackValueContainerType(Enum):
 
 
 def find_block_value(state: SlackState, block_id: str) -> Optional[Union[str, List[str]]]:
-
     block_state = state["values"][block_id]
     sub_blocks = list(block_state.keys())
 
     value_container = block_state[sub_blocks[0]]
 
     value_container_type = _SlackValueContainerType[value_container["type"]]
+    value_key = value_container_type.value
+
     logger.debug(value_container)
-    logger.debug(value_container_type.value)
+    logger.debug(value_key)
+
+    if value_container_type == _SlackValueContainerType.static_select:
+        # extra level of dictionary in this case
+        value = value_container[value_key]["value"]  # type: ignore
+    else:
+        value = value_container[value_key]  # type: ignore
 
     # name of the value changes according to type
-    return value_container[value_container_type.value]  # type: ignore
+    return value  # type: ignore

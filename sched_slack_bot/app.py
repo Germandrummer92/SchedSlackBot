@@ -1,6 +1,6 @@
 import logging
 import os
-from collections import Callable
+from typing import Callable
 
 from slack_bolt import App
 from slack_bolt.request.payload_utils import is_view_submission
@@ -56,3 +56,5 @@ def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, *_, **__):
     schedule = Schedule.from_modal_submission(submission_body=body)
 
     logger.info(f"Created Schedule {schedule}")
+
+    
