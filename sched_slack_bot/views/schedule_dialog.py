@@ -1,20 +1,23 @@
-from slack_sdk.models.blocks import HeaderBlock, PlainTextObject, DividerBlock, InputBlock, PlainTextInputElement, \
+from slack_sdk.models.blocks import HeaderBlock, PlainTextObject, DividerBlock, PlainTextInputElement, \
     ConversationSelectElement, UserMultiSelectElement
 from slack_sdk.models.views import View
 
 from sched_slack_bot.views.datetime_selector import get_datetime_selector
+from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
 
-USERS_INPUT = InputBlock(label="Users to use in Rotation", element=UserMultiSelectElement(),
-                         hint=PlainTextObject(text="The Users that should be part of the rotation"),
-                         block_id="NEW_SCHEDULE_USERS_INPUT")
+USERS_INPUT = InputBlockWithBlockId(label="Users to use in Rotation", element=UserMultiSelectElement(),
+                                    hint=PlainTextObject(text="The Users that should be part of the rotation"),
+                                    block_id="NEW_SCHEDULE_USERS_INPUT")
 
-CHANNEL_INPUT = InputBlock(label="Channel To Notify", element=ConversationSelectElement(placeholder="#channel"),
-                           hint=PlainTextObject(text="The channel to notify automatically"),
-                           block_id="NEW_SCHEDULE_CHANNEL_INPUT")
+CHANNEL_INPUT = InputBlockWithBlockId(label="Channel To Notify",
+                                      element=ConversationSelectElement(placeholder="#channel"),
+                                      hint=PlainTextObject(text="The channel to notify automatically"),
+                                      block_id="NEW_SCHEDULE_CHANNEL_INPUT")
 
-DISPLAY_NAME_INPUT = InputBlock(label="Display Name", hint=PlainTextObject(text="Name for your rotating schedule"),
-                                element=PlainTextInputElement(initial_value="New Rotating Schedule"),
-                                block_id="NEW_SCHEDULE_DISPLAY_NAME_INPUT")
+DISPLAY_NAME_INPUT = InputBlockWithBlockId(label="Display Name",
+                                           hint=PlainTextObject(text="Name for your rotating schedule"),
+                                           element=PlainTextInputElement(initial_value="New Rotating Schedule"),
+                                           block_id="NEW_SCHEDULE_DISPLAY_NAME_INPUT")
 
 FIRST_ROTATION_INPUT = get_datetime_selector(label="First Rotation Reminder/Rotation")
 SECOND_ROTATION_INPUT = get_datetime_selector(label="Second Rotation Reminder/Rotation")

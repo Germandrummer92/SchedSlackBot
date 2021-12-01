@@ -1,8 +1,10 @@
 from enum import Enum
 from typing import Dict, List
 
-from slack_sdk.models.blocks import InputBlock, PlainTextObject, DatePickerElement, StaticSelectElement, OptionGroup, \
+from slack_sdk.models.blocks import PlainTextObject, DatePickerElement, StaticSelectElement, OptionGroup, \
     Option
+
+from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
 
 
 class DatetimeSelectorType(Enum):
@@ -16,25 +18,29 @@ def _get_options_for_range(option_range: range, label: str) -> List[OptionGroup]
                         label=PlainTextObject(text=label))]
 
 
-def get_datetime_selector(label: str) -> Dict[DatetimeSelectorType, InputBlock]:
+def get_datetime_selector(label: str) -> Dict[DatetimeSelectorType, InputBlockWithBlockId]:
     blocks = dict()
-    blocks[DatetimeSelectorType.DATE] = InputBlock(label=f"{label} Date",
-                                                   hint=PlainTextObject(text="The date of the first Rotation/Reminder"),
-                                                   element=DatePickerElement(),
-                                                   block_id=f"{label} Date")
-    blocks[DatetimeSelectorType.HOUR] = InputBlock(label=f"{label} Hour",
-                                                   hint=PlainTextObject(text="The Hour of the first Rotation/Reminder"),
-                                                   element=StaticSelectElement(
-                                                       option_groups=_get_options_for_range(option_range=range(0, 24),
-                                                                                            label="Hour")),
-                                                   block_id=f"{label} Hour")
+    blocks[DatetimeSelectorType.DATE] = InputBlockWithBlockId(label=f"{label} Date",
+                                                              hint=PlainTextObject(
+                                                                  text="The date of the first Rotation/Reminder"),
+                                                              element=DatePickerElement(),
+                                                              block_id=f"{label} Date")
+    blocks[DatetimeSelectorType.HOUR] = InputBlockWithBlockId(label=f"{label} Hour",
+                                                              hint=PlainTextObject(
+                                                                  text="The Hour of the first Rotation/Reminder"),
+                                                              element=StaticSelectElement(
+                                                                  option_groups=_get_options_for_range(
+                                                                      option_range=range(0, 24),
+                                                                      label="Hour")),
+                                                              block_id=f"{label} Hour")
 
-    blocks[DatetimeSelectorType.MINUTE] = InputBlock(label=f"{label} Minute",
-                                                     hint=PlainTextObject(
-                                                         text="The Minute of the first Rotation/Reminder"),
-                                                     element=StaticSelectElement(
-                                                         option_groups=_get_options_for_range(option_range=range(0, 60),
-                                                                                              label="Minute")),
-                                                     block_id=f"{label} Minute")
+    blocks[DatetimeSelectorType.MINUTE] = InputBlockWithBlockId(label=f"{label} Minute",
+                                                                hint=PlainTextObject(
+                                                                    text="The Minute of the first Rotation/Reminder"),
+                                                                element=StaticSelectElement(
+                                                                    option_groups=_get_options_for_range(
+                                                                        option_range=range(0, 60),
+                                                                        label="Minute")),
+                                                                block_id=f"{label} Minute")
 
     return blocks

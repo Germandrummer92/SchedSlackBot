@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Callable
+from typing import Callable, Any
 
 from slack_bolt import App
 from slack_bolt.request.payload_utils import is_view_submission
@@ -26,7 +26,7 @@ app = App(
 
 
 @app.event("app_home_opened")
-def update_home_tab(client: WebClient, event: SlackEvent):
+def update_home_tab(client: WebClient, event: SlackEvent) -> None:
     user = event["user"]
 
     logger.info(f"{user=} clicked on App.Home")
@@ -37,7 +37,7 @@ def update_home_tab(client: WebClient, event: SlackEvent):
 
 
 @app.action(CREATE_BUTTON_ACTION_ID)
-def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, client: WebClient):
+def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, client: WebClient) -> None:
     ack()
 
     trigger_id = body["trigger_id"]
@@ -48,7 +48,7 @@ def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, client: We
 
 
 @app.view(SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])
-def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, *_, **__):
+def submitted_create_schedule(ack: Callable[[], None], body: SlackBody, *_: Any, **__: dict[str, Any]) -> None:
     ack()
 
     logger.info(f"Creating Schedule from {body['user']}")
@@ -57,4 +57,4 @@ def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, *_, **__):
 
     logger.info(f"Created Schedule {schedule}")
 
-    
+
