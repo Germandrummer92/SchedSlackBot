@@ -28,11 +28,12 @@ def find_block_value(state: SlackState, block_id: str) -> Optional[Union[str, Li
     logger.debug(value_container)
     logger.debug(value_key)
 
+    # type ignores are necessary since the name of the field in the container is dynamic,
+    # typing it isn't easily possible
     if value_container_type == _SlackValueContainerType.static_select:
         # extra level of dictionary in this case
         value = value_container[value_key]["value"]  # type: ignore
     else:
         value = value_container[value_key]  # type: ignore
 
-    # name of the value changes according to type
     return value  # type: ignore

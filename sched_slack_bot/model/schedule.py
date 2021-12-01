@@ -4,9 +4,7 @@ import datetime
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import List, Optional, Union, TypeGuard, Dict, cast
-
-from slack_sdk.models.blocks import InputBlock
+from typing import List, Optional, Union, Dict
 
 from sched_slack_bot.model.slack_body import SlackBody, SlackState
 from sched_slack_bot.utils.find_block_value import find_block_value
@@ -39,7 +37,8 @@ def raise_if_not_list(value: Optional[Union[str, List[str]]], name: str) -> List
     return value
 
 
-def get_datetime_state(state: SlackState, date_input: Dict[DatetimeSelectorType, InputBlockWithBlockId]) -> datetime.datetime:
+def get_datetime_state(state: SlackState,
+                       date_input: Dict[DatetimeSelectorType, InputBlockWithBlockId]) -> datetime.datetime:
     date_string = find_block_value(state=state, block_id=date_input[DatetimeSelectorType.DATE].block_id)
     date_string = raise_if_not_string(value=date_string, name="date")
     hour = find_block_value(state=state, block_id=date_input[DatetimeSelectorType.HOUR].block_id)
