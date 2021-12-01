@@ -29,6 +29,10 @@ class ReminderScheduler:
             self._scheduled_jobs.pop(thread_ident)
 
     def schedule_reminder(self, schedule: Schedule, reminder_sender: ReminderSender) -> None:
+        now = datetime.datetime.now()
+        if schedule.next_rotation < now:
+            raise ValueError("The provided schedule was scheduled in the past!")
+
         interval = (schedule.next_rotation - datetime.datetime.now()).total_seconds()
         reminder = Reminder(schedule=schedule)
         logger.info(f"Scheduling Reminder at {interval}s from now")

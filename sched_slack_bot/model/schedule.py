@@ -4,7 +4,7 @@ import datetime
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import List, Optional, Union, Dict
+from typing import List, Optional, Union, Dict, Any
 
 from sched_slack_bot.model.slack_body import SlackBody, SlackState
 from sched_slack_bot.utils.find_block_value import find_block_value
@@ -14,6 +14,8 @@ from sched_slack_bot.views.schedule_dialog import DISPLAY_NAME_INPUT, USERS_INPU
     SECOND_ROTATION_INPUT
 
 logger = logging.getLogger(__name__)
+
+SERIALIZATION_DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.000Z"
 
 
 def raise_if_not_present(value: Optional[Union[str, List[str]]], name: str) -> Union[str, List[str]]:
@@ -87,6 +89,35 @@ class Schedule:
                         channel_id_to_notify_in=self.channel_id_to_notify_in,
                         current_index=self.next_index,
                         created_by=self.created_by)
+
+    @property
+    def current_user_to_notify(self) -> str:
+        return self.members[self.current_index]
+
+    def as_json(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "display_name": self.display_name,
+            "members": self.members,
+            "next_rotation": self.next_rotation.strftime(SERIALIZATION_DATE_FORMAT),
+            "time_between_rotations": self.time_between_rotations.total_seconds(),
+            "channel_id_to_notify_in": self.channel_id_to_notify_in,
+            "created_by": self.created_by,
+            "current_index": self.current_index
+
+        }
+
+    @classmethod
+    def from_json(cls, json: Dict[str, Any]) -> Schedule:
+        return Schedule(id=json["id"],
+                        display_name=json["display_name"],
+                        members=json["members"],
+                        next_rotation=datetime.datetime.strptime(json["next_rotation"], SERIALIZATION_DATE_FORMAT),
+                        time_between_rotations=datetime.timedelta(seconds=json["time_between_rotations"]),
+                        channel_id_to_notify_in=json["channel_id_to_notify_in"],
+                        created_by=json["created_by"],
+                        current_index=json["current_index"]
+                        )
 
     @classmethod
     def from_modal_submission(cls, submission_body: SlackBody) -> Schedule:

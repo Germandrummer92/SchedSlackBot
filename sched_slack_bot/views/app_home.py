@@ -6,6 +6,7 @@ from slack_sdk.models.blocks import SectionBlock, TextObject, DividerBlock, Acti
 from slack_sdk.models.views import View
 
 from sched_slack_bot.model.schedule import Schedule
+from sched_slack_bot.views.schedule_blocks import get_blocks_for_schedules
 
 NO_SCHEDULES_BLOCK = SectionBlock(text=TextObject(
     type="mrkdwn",
@@ -16,7 +17,8 @@ CREATE_BUTTON_ACTION_ID = "SCHED_SLACK_BOT_CREATE"
 
 
 def get_app_home_view(schedules: List[Schedule]) -> View:
-    schedules_block = NO_SCHEDULES_BLOCK if len(schedules) == 0 else DividerBlock()
+    schedules_blocks = [NO_SCHEDULES_BLOCK, DividerBlock()] if len(schedules) == 0 else get_blocks_for_schedules(
+        schedules=schedules)
 
     return View(type="home",
                 callback_id="home_view",
@@ -27,8 +29,7 @@ def get_app_home_view(schedules: List[Schedule]) -> View:
                     SectionBlock(text=MarkdownTextObject(
                         text="Your *One-Stop-Shop* for setting up rotating :calendar: schedules.")),
                     DividerBlock(),
-                    schedules_block,
-                    DividerBlock(),
+                    *schedules_blocks,
                     SectionBlock(text=MarkdownTextObject(
                         text="Create a new Schedule"
                     )),

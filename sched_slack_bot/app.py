@@ -6,6 +6,7 @@ from slack_bolt import App
 from slack_bolt.request.payload_utils import is_view_submission
 from slack_sdk import WebClient
 
+from sched_slack_bot.data.mongo.mongo_schedule_access import MongoScheduleAccess
 from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.model.slack_body import SlackBody
 from sched_slack_bot.model.slack_event import SlackEvent
@@ -17,14 +18,17 @@ from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG_CALL_BACK_
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET")
+MONGO_URL = os.environ.get("MONGO_URL")
 logger = logging.getLogger(__name__)
 
 app = App(
     name="sched_slack_bot",
     token=SLACK_BOT_TOKEN,
     signing_secret=SLACK_SIGNING_SECRET,
-    logger=logger
+    logger=logger,
 )
+
+data_access = MongoScheduleAccess(mongo_url=MONGO_URL)
 
 
 @app.event("app_home_opened")
@@ -34,7 +38,7 @@ def update_home_tab(client: WebClient, event: SlackEvent) -> None:
     logger.info(f"{user=} clicked on App.Home")
     client.views_publish(
         user_id=user,
-        view=get_app_home_view(schedules=[])
+        view=get_app_home_view(schedules=data_access.get_available_schedules())
     )
 
 
@@ -59,7 +63,6 @@ def submitted_create_schedule(ack: Callable[[], None], body: SlackBody, client: 
 
     reminder_sender = SlackReminderSender(client=client)
     REMINDER_SCHEDULER.schedule_reminder(schedule=schedule, reminder_sender=reminder_sender)
+    data_access.save_schedule(schedule=schedule)
 
     logger.info(f"Created Schedule {schedule}")
-
-
