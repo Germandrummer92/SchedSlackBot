@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Callable, Any
+from typing import Callable
 
 from slack_bolt import App
 from slack_bolt.request.payload_utils import is_view_submission
@@ -9,6 +9,8 @@ from slack_sdk import WebClient
 from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.model.slack_body import SlackBody
 from sched_slack_bot.model.slack_event import SlackEvent
+from sched_slack_bot.reminder.scheduler import REMINDER_SCHEDULER
+from sched_slack_bot.reminder.slack_sender import SlackReminderSender
 from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
 from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG_CALL_BACK_ID, \
     SCHEDULE_NEW_DIALOG
@@ -48,12 +50,15 @@ def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, client: We
 
 
 @app.view(SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])
-def submitted_create_schedule(ack: Callable[[], None], body: SlackBody, *_: Any, **__: dict[str, Any]) -> None:
+def submitted_create_schedule(ack: Callable[[], None], body: SlackBody, client: WebClient) -> None:
     ack()
 
     logger.info(f"Creating Schedule from {body['user']}")
 
     schedule = Schedule.from_modal_submission(submission_body=body)
+
+    reminder_sender = SlackReminderSender(client=client)
+    REMINDER_SCHEDULER.schedule_reminder(schedule=schedule, reminder_sender=reminder_sender)
 
     logger.info(f"Created Schedule {schedule}")
 

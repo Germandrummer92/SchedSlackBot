@@ -58,7 +58,7 @@ def get_datetime_state(state: SlackState,
                              minute=int(minute))
 
 
-@dataclass
+@dataclass(frozen=True)
 class Schedule:
     id: str
     display_name: str
@@ -68,6 +68,25 @@ class Schedule:
     channel_id_to_notify_in: str
     created_by: str
     current_index: int = 0
+
+    @property
+    def next_index(self) -> int:
+        return (self.current_index + 1) % len(self.members)
+
+    @property
+    def next_next_rotation_date(self) -> datetime.datetime:
+        return self.next_rotation + self.time_between_rotations
+
+    @property
+    def next_schedule(self) -> Schedule:
+        return Schedule(id=self.id,
+                        display_name=self.display_name,
+                        members=self.members,
+                        next_rotation=self.next_next_rotation_date,
+                        time_between_rotations=self.time_between_rotations,
+                        channel_id_to_notify_in=self.channel_id_to_notify_in,
+                        current_index=self.next_index,
+                        created_by=self.created_by)
 
     @classmethod
     def from_modal_submission(cls, submission_body: SlackBody) -> Schedule:
