@@ -31,7 +31,7 @@ def reminder(schedule: Schedule) -> Reminder:
 class TestReminder:
     def test_next_next_rotation_date_is_formatted_correctly(self, reminder: Reminder,
                                                             next_rotation_date: datetime.datetime) -> None:
-        assert reminder.next_next_rotation_date == next_rotation_date.strftime("%Y-%m-%d-%H-%M")
+        assert reminder.next_next_rotation_date == "2500-12-01-12-00"
 
     def test_user_to_notify_is_correct(self, reminder: Reminder, schedule: Schedule) -> None:
         assert reminder.user_id_to_notify == schedule.members[schedule.current_index]
