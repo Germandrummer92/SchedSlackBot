@@ -18,6 +18,7 @@ class SlackState(TypedDict, total=False):
 
 class SlackView(TypedDict, total=False):
     state: SlackState
+    id: str
 
 
 class SlackBody(TypedDict, total=False):

@@ -49,7 +49,7 @@ def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, client: We
     trigger_id = body["trigger_id"]
 
     client.views_open(trigger_id=trigger_id,
-                      view=SCHEDULE_NEW_DIALOG
+                      view=SCHEDULE_NEW_DIALOG,
                       )
 
 
@@ -66,3 +66,7 @@ def submitted_create_schedule(ack: Callable[[], None], body: SlackBody, client: 
     data_access.save_schedule(schedule=schedule)
 
     logger.info(f"Created Schedule {schedule}")
+    client.views_publish(
+        view=get_app_home_view(schedules=data_access.get_available_schedules()),
+        user_id=body["user"]["id"]
+    )
