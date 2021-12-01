@@ -19,7 +19,7 @@ class Reminder:
 
     @property
     def next_next_rotation_date(self) -> str:
-        return self._schedule.next_next_rotation_date.strftime("%Y-%m-%d-%H-%M")
+        return self._schedule.next_next_rotation_date.strftime("%Y-%m-%d-%H:%M:00")
 
     @property
     def next_rotation_user(self) -> str:
