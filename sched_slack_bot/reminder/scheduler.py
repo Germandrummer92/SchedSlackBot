@@ -1,7 +1,7 @@
 import datetime
 import logging
 import threading
-from typing import Dict, Mapping
+from typing import Dict, Mapping, cast
 
 from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.reminder.reminder import Reminder
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReminderScheduler:
-    def __init__(self):
+    def __init__(self) -> None:
         self._scheduled_jobs: Dict[int, threading.Timer] = dict()
         self._scheduled_jobs_lock = threading.RLock()
 
@@ -21,8 +21,10 @@ class ReminderScheduler:
             return self._scheduled_jobs
 
     def _add_timer(self, timer: threading.Timer) -> None:
+        timer.start()
         with self._scheduled_jobs_lock:
-            self._scheduled_jobs[timer.ident] = timer
+            # timer is started above so the identifier is always defined
+            self._scheduled_jobs[timer.ident] = timer  # type: ignore
 
     def _remove_timer(self, thread_ident: int) -> None:
         with self._scheduled_jobs_lock:
@@ -38,13 +40,14 @@ class ReminderScheduler:
         logger.info(f"Scheduling Reminder at {interval}s from now")
         timer = threading.Timer(interval=interval, function=self.execute_reminder, kwargs={"reminder": reminder,
                                                                                            "reminder_sender": reminder_sender})
-        timer.start()
         self._add_timer(timer=timer)
 
-    def execute_reminder(self, reminder: Reminder, reminder_sender: ReminderSender):
+    def execute_reminder(self, reminder: Reminder, reminder_sender: ReminderSender) -> None:
         logger.info(f"Executing reminder {reminder.display_name}")
 
-        self._remove_timer(thread_ident=threading.current_thread().ident)
+        current_thread = threading.current_thread()
+        thread_ident = cast(int, current_thread.ident)
+        self._remove_timer(thread_ident=thread_ident)
 
         reminder_sender.send_reminder(reminder=reminder)
 

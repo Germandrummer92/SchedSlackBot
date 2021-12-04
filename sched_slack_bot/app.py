@@ -18,7 +18,7 @@ from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG_CALL_BACK_
 
 SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
 SLACK_SIGNING_SECRET = os.environ.get("SLACK_SIGNING_SECRET")
-MONGO_URL = os.environ.get("MONGO_URL")
+MONGO_URL = os.environ["MONGO_URL"]
 logger = logging.getLogger(__name__)
 
 app = App(
