@@ -1,7 +1,7 @@
 import datetime
 import logging
 import threading
-from typing import Dict, Mapping, cast
+from typing import Dict, Mapping, cast, List
 
 from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.reminder.reminder import Reminder
@@ -14,6 +14,10 @@ class ReminderScheduler:
     def __init__(self) -> None:
         self._scheduled_jobs: Dict[int, threading.Timer] = dict()
         self._scheduled_jobs_lock = threading.RLock()
+
+    def schedule_all_reminders(self, schedules: List[Schedule], reminder_sender: ReminderSender) -> None:
+        for schedule in schedules:
+            self.schedule_reminder(schedule=schedule, reminder_sender=reminder_sender)
 
     @property
     def scheduled_jobs(self) -> Mapping[int, threading.Timer]:
@@ -35,7 +39,7 @@ class ReminderScheduler:
         if schedule.next_rotation < now:
             raise ValueError("The provided schedule was scheduled in the past!")
 
-        interval = (schedule.next_rotation - datetime.datetime.now()).total_seconds()
+        interval = (schedule.next_rotation - now).total_seconds()
         reminder = Reminder(schedule=schedule)
         logger.info(f"Scheduling Reminder at {interval}s from now")
         timer = threading.Timer(interval=interval, function=self.execute_reminder, kwargs={"reminder": reminder,

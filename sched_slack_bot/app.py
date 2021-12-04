@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 from typing import Callable
@@ -12,6 +13,7 @@ from sched_slack_bot.model.slack_body import SlackBody
 from sched_slack_bot.model.slack_event import SlackEvent
 from sched_slack_bot.reminder.scheduler import REMINDER_SCHEDULER
 from sched_slack_bot.reminder.slack_sender import SlackReminderSender
+from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_the_past
 from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
 from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG_CALL_BACK_ID, \
     SCHEDULE_NEW_DIALOG
@@ -29,6 +31,16 @@ app = App(
 )
 
 data_access = MongoScheduleAccess(mongo_url=MONGO_URL)
+slack_client = WebClient(token=SLACK_BOT_TOKEN)
+reminder_sender = SlackReminderSender(client=slack_client)
+
+
+def start_all_schedules() -> None:
+    saved_schedules = data_access.get_available_schedules()
+
+    schedules_to_start = list(map(fix_schedule_from_the_past, saved_schedules))
+
+    REMINDER_SCHEDULER.schedule_all_reminders(schedules=schedules_to_start, reminder_sender=reminder_sender)
 
 
 @app.event("app_home_opened")
@@ -43,30 +55,29 @@ def update_home_tab(client: WebClient, event: SlackEvent) -> None:
 
 
 @app.action(CREATE_BUTTON_ACTION_ID)
-def clicked_create_schedule(ack: Callable[[], None], body: SlackBody, client: WebClient) -> None:
+def clicked_create_schedule(ack: Callable[[], None], body: SlackBody) -> None:
     ack()
 
     trigger_id = body["trigger_id"]
 
-    client.views_open(trigger_id=trigger_id,
-                      view=SCHEDULE_NEW_DIALOG,
-                      )
+    slack_client.views_open(trigger_id=trigger_id,
+                            view=SCHEDULE_NEW_DIALOG,
+                            )
 
 
 @app.view(SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])
-def submitted_create_schedule(ack: Callable[[], None], body: SlackBody, client: WebClient) -> None:
+def submitted_create_schedule(ack: Callable[[], None], body: SlackBody) -> None:
     ack()
 
     logger.info(f"Creating Schedule from {body['user']}")
 
     schedule = Schedule.from_modal_submission(submission_body=body)
 
-    reminder_sender = SlackReminderSender(client=client)
     REMINDER_SCHEDULER.schedule_reminder(schedule=schedule, reminder_sender=reminder_sender)
     data_access.save_schedule(schedule=schedule)
 
     logger.info(f"Created Schedule {schedule}")
-    client.views_publish(
+    slack_client.views_publish(
         view=get_app_home_view(schedules=data_access.get_available_schedules()),
         user_id=body["user"]["id"]
     )
