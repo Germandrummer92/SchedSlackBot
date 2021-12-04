@@ -10,7 +10,8 @@ def blocks_for_schedule(schedule: Schedule) -> List[Block]:
         SectionBlock(text=MarkdownTextObject(
             text=f":calendar: Schedule *{schedule.display_name}*: Next-Rotation: _{schedule.next_rotation}_")),
         SectionBlock(text=MarkdownTextObject(
-            text=f"Next Responsible person: <@{schedule.current_user_to_notify}>, all users: {[f'<@{user}>' for user in schedule.members]}"
+            text=f"Next Responsible person: <@{schedule.current_user_to_notify}>, "
+                 f"all users: {[f'<@{user}>' for user in schedule.members]}"
         )),
         DividerBlock()
     ]

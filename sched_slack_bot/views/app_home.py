@@ -27,10 +27,16 @@ def get_app_home_view(schedules: List[Schedule]) -> View:
                     )),
                     SectionBlock(text=MarkdownTextObject(
                         text="Your *One-Stop-Shop* for setting up rotating :calendar: schedules.")),
+                    SectionBlock(text=MarkdownTextObject(
+                        text="Powered by <https://github.com/Germandrummer92/SchedSlackBot"
+                             "|github.com/Germandrummer92/SchedSlackBot> with :heart:")),
+                    SectionBlock(text=MarkdownTextObject(
+                        text="Icon courtesy of <https://www.freepik.com/vectors/bannerz"
+                             "|makyz>")),
                     DividerBlock(),
                     *schedules_blocks,
                     SectionBlock(text=MarkdownTextObject(
-                        text="Create a new Schedule"
+                        text="Create a new Schedule:"
                     )),
                     ActionsBlock(elements=[
                         ButtonElement(text=PlainTextObject(text="Create"), action_id=CREATE_BUTTON_ACTION_ID)])
