@@ -9,7 +9,7 @@ COPY pyproject.toml .
 COPY setup.py .
 
 RUN apt-get -y install curl
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+RUN curl -sSL https://install.python-poetry.org/install-poetry.py | python -
 
 RUN poetry install --no-dev --no-interaction --no-ansi
 

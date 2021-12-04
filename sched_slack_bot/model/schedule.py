@@ -10,8 +10,8 @@ from sched_slack_bot.model.slack_body import SlackBody, SlackState
 from sched_slack_bot.utils.find_block_value import find_block_value
 from sched_slack_bot.views.datetime_selector import DatetimeSelectorType
 from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
-from sched_slack_bot.views.schedule_dialog import DISPLAY_NAME_INPUT, USERS_INPUT, CHANNEL_INPUT, FIRST_ROTATION_INPUT, \
-    SECOND_ROTATION_INPUT
+from sched_slack_bot.views.schedule_dialog import DISPLAY_NAME_INPUT, USERS_INPUT, CHANNEL_INPUT, \
+    FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
 
 logger = logging.getLogger(__name__)
 

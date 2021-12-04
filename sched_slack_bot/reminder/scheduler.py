@@ -42,8 +42,8 @@ class ReminderScheduler:
         interval = (schedule.next_rotation - now).total_seconds()
         reminder = Reminder(schedule=schedule)
         logger.info(f"Scheduling Reminder at {interval}s from now")
-        timer = threading.Timer(interval=interval, function=self.execute_reminder, kwargs={"reminder": reminder,
-                                                                                           "reminder_sender": reminder_sender})
+        timer = threading.Timer(interval=interval, function=self.execute_reminder,
+                                kwargs={"reminder": reminder, "reminder_sender": reminder_sender})
         self._add_timer(timer=timer)
 
     def execute_reminder(self, reminder: Reminder, reminder_sender: ReminderSender) -> None:
