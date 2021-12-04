@@ -30,7 +30,6 @@ app = App(
 
 data_access = MongoScheduleAccess(mongo_url=MONGO_URL)
 
-# does this need a comment?
 
 @app.event("app_home_opened")
 def update_home_tab(client: WebClient, event: SlackEvent) -> None:
