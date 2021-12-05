@@ -1,7 +1,7 @@
 from typing import List
 
-from slack_sdk.models.blocks import SectionBlock, TextObject, DividerBlock, ActionsBlock, ButtonElement, \
-    MarkdownTextObject, PlainTextObject, HeaderBlock
+from slack_sdk.models.blocks import SectionBlock, TextObject, DividerBlock, ButtonElement, \
+    MarkdownTextObject, PlainTextObject, HeaderBlock, ActionsBlock
 from slack_sdk.models.views import View
 
 from sched_slack_bot.model.schedule import Schedule
@@ -37,9 +37,9 @@ def get_app_home_view(schedules: List[Schedule]) -> View:
                     DividerBlock(),
                     *schedules_blocks,
                     SectionBlock(text=MarkdownTextObject(
-                        text="Create a new Schedule:"
+                        text="Create a new Schedule"
                     )),
                     ActionsBlock(elements=[
-                        ButtonElement(text=PlainTextObject(text="Create"), action_id=CREATE_BUTTON_ACTION_ID)],
-                        block_id=CREATE_BLOCK_ID)
+                        ButtonElement(text=PlainTextObject(text="Create"), action_id=CREATE_BUTTON_ACTION_ID,
+                                      style="primary")], block_id=CREATE_BLOCK_ID)
                 ])
