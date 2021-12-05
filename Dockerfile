@@ -10,6 +10,7 @@ COPY setup.py .
 
 RUN apt-get -y install curl
 RUN curl -sSL https://install.python-poetry.org/install-poetry.py | python -
+ENV PATH=/root/.local/bin:$PATH
 
 RUN poetry install --no-dev --no-interaction --no-ansi
 
