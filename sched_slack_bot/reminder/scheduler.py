@@ -22,7 +22,7 @@ class ReminderScheduler:
             # this timer has to be started
             return self._timer_by_schedule_id[schedule_id].ident  # type: ignore
 
-    def remove_reminder_for_schedule(self, schedule_id: str):
+    def remove_reminder_for_schedule(self, schedule_id: str) -> None:
         logger.info(f"Removing scheduled reminder for schedule id {schedule_id}")
         ident_to_remove = self._get_thread_ident_for_schedule(schedule_id=schedule_id)
 

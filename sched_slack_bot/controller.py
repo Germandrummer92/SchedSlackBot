@@ -109,11 +109,11 @@ class AppController:
         self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])(
             self.handle_submitted_create_schedule)
 
-    def handle_reminder_executed(self, next_schedule: Schedule):
+    def handle_reminder_executed(self, next_schedule: Schedule) -> None:
         self.schedule_access.update_schedule(schedule_id_to_update=next_schedule.id,
                                              new_schedule=next_schedule)
 
-    def handle_app_home_opened(self, event: SlackEvent):
+    def handle_app_home_opened(self, event: SlackEvent) -> None:
         user = event["user"]
 
         logger.info(f"{user=} clicked on App.Home")
