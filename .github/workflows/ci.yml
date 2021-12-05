@@ -69,12 +69,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         name: Check out code
-      - uses: mr-smithers-excellent/docker-build-push@v5
+      - uses: mr-smithers-excellent/docker-build-push@v5.6
         name: Build & push Docker image
         with:
           image: schedslackbot
           tags: latest
           registry: ghcr.io
           dockerfile: Dockerfile
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          username: Germandrummer92
+          password: ${{ secrets.GITHUB_TOKEN }}

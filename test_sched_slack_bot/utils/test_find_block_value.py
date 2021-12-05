@@ -12,12 +12,12 @@ def test_it_finds_block_value(value_container_type: SlackValueContainerType) -> 
     value_kwargs = {value_container_type.value: expected_value}
 
     if value_container_type == SlackValueContainerType.static_select:
-        value_kwargs = {value_container_type.value: {"value": expected_value}}
+        value_kwargs = {value_container_type.value: {"value": expected_value}}  # type: ignore
     # noinspection PyArgumentList
     block_value = find_block_value(state=SlackState(values={
         block_id: {
             "some_value_key": SlackInputBlockState(type=value_container_type.name,
-                                                   **value_kwargs)
+                                                   **value_kwargs)  # type: ignore
         }
     }), block_id=block_id)
 
