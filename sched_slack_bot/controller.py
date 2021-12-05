@@ -11,7 +11,6 @@ from sched_slack_bot.data.schedule_access import ScheduleAccess
 from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.model.slack_body import SlackBody
 from sched_slack_bot.model.slack_event import SlackEvent
-from sched_slack_bot.reminder.reminder import Reminder
 from sched_slack_bot.reminder.scheduler import ReminderScheduler
 from sched_slack_bot.reminder.slack_sender import SlackReminderSender
 from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_the_past

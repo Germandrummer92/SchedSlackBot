@@ -38,5 +38,3 @@ class MongoScheduleAccess(ScheduleAccess):
 
         update = new_schedule.as_json()
         self._collection.replace_one(filter={"id": schedule_id_to_update}, replacement=update)
-
-
