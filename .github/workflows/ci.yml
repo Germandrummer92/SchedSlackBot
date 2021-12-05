@@ -25,36 +25,36 @@ jobs:
       run: |
         poetry run flake8
   mypy:
-      runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org/install-poetry.py | python -
-      - name: Install Dependencies
-        run: |
-          poetry install
-      - name: Run mypy
-        run: |
-          poetry run mypy sched_slack_bot test_sched_slack_bot --config-file mypy.ini
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"
+    - name: Install poetry
+      run: |
+        curl -sSL https://install.python-poetry.org/install-poetry.py | python -
+    - name: Install Dependencies
+      run: |
+        poetry install
+    - name: Run mypy
+      run: |
+        poetry run mypy sched_slack_bot test_sched_slack_bot --config-file mypy.ini
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
-      - name: Install poetry
-        run: |
-          curl -sSL https://install.python-poetry.org/install-poetry.py | python -
-      - name: Install Dependencies
-        run: |
-          poetry install
-      - name: Run tests
-        run: |
-        poetry run pytest test_sched_slack_bot --cov sched_slack_bot
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.10"
+    - name: Install poetry
+      run: |
+        curl -sSL https://install.python-poetry.org/install-poetry.py | python -
+    - name: Install Dependencies
+      run: |
+        poetry install
+    - name: Run tests
+      run: |
+      poetry run pytest test_sched_slack_bot --cov sched_slack_bot
