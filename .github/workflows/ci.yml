@@ -61,6 +61,8 @@ jobs:
     - name: Upload coveralls data
       run: |
         poetry run coveralls
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_and_push_docker_image:
     runs-on: ubuntu-latest
