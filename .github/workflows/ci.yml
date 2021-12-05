@@ -72,9 +72,9 @@ jobs:
       - uses: mr-smithers-excellent/docker-build-push@v5
         name: Build & push Docker image
         with:
-          image: app
+          image: ghcr.io/germandrummer92/schedslackbot
           tags: latest
-          registry: ghcr.io/germandrummer92/schedslackbot
+          registry: ghcr.io
           dockerfile: Dockerfile
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
