@@ -1,14 +1,12 @@
 import logging
-import os
 
-from sched_slack_bot.app import app, start_all_schedules
+from sched_slack_bot.controller import AppController
 
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    port = int(os.environ.get("PORT", 3000))
-    logger.info(f"Starting SchedSlackBot on Port {port}")
-    start_all_schedules()
-    app.start(port=port)
+    controller = AppController()
+
+    controller.start()
