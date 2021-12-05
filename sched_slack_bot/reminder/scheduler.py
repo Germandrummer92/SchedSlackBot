@@ -3,8 +3,8 @@ import logging
 import threading
 from typing import Dict, cast, List, Optional, Callable
 
+from sched_slack_bot.model.reminder import Reminder
 from sched_slack_bot.model.schedule import Schedule
-from sched_slack_bot.reminder.reminder import Reminder
 from sched_slack_bot.reminder.sender import ReminderSender
 
 logger = logging.getLogger(__name__)

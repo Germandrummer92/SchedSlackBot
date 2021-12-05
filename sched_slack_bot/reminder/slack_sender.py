@@ -1,6 +1,6 @@
 from slack_sdk import WebClient
 
-from sched_slack_bot.reminder.reminder import Reminder
+from sched_slack_bot.model.reminder import Reminder
 from sched_slack_bot.reminder.sender import ReminderSender
 from sched_slack_bot.views.reminder_blocks import get_reminder_blocks, get_reminder_text, get_skip_text, get_skip_blocks
 

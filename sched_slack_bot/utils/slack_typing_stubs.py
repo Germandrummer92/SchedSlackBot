@@ -31,3 +31,7 @@ class SlackBody(TypedDict, total=False):
     user: SlackBodyUser
     view: SlackView
     actions: List[SlackAction]
+
+
+class SlackEvent(TypedDict, total=False):
+    user: str

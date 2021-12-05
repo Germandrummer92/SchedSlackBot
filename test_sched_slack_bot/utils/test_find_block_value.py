@@ -1,7 +1,7 @@
 import pytest
 
-from sched_slack_bot.model.slack_body import SlackState, SlackInputBlockState
 from sched_slack_bot.utils.find_block_value import find_block_value, SlackValueContainerType
+from sched_slack_bot.utils.slack_typing_stubs import SlackInputBlockState, SlackState
 
 
 @pytest.mark.parametrize("value_container_type", list(SlackValueContainerType))

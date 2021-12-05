@@ -3,8 +3,8 @@ import uuid
 
 import pytest
 
+from sched_slack_bot.model.reminder import Reminder
 from sched_slack_bot.model.schedule import Schedule
-from sched_slack_bot.reminder.reminder import Reminder
 
 
 @pytest.fixture()

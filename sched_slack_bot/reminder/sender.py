@@ -1,6 +1,6 @@
 import abc
 
-from sched_slack_bot.reminder.reminder import Reminder
+from sched_slack_bot.model.reminder import Reminder
 
 
 class ReminderSender(abc.ABC):

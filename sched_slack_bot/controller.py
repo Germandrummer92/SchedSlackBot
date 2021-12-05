@@ -9,13 +9,12 @@ from slack_sdk import WebClient
 
 from sched_slack_bot.data.mongo.mongo_schedule_access import MongoScheduleAccess
 from sched_slack_bot.data.schedule_access import ScheduleAccess
+from sched_slack_bot.model.reminder import Reminder
 from sched_slack_bot.model.schedule import Schedule
-from sched_slack_bot.model.slack_body import SlackBody
-from sched_slack_bot.model.slack_event import SlackEvent
-from sched_slack_bot.reminder.reminder import Reminder
 from sched_slack_bot.reminder.scheduler import ReminderScheduler
 from sched_slack_bot.reminder.slack_sender import SlackReminderSender
 from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_the_past
+from sched_slack_bot.utils.slack_typing_stubs import SlackBody, SlackEvent
 from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
 from sched_slack_bot.views.reminder_blocks import SKIP_CURRENT_MEMBER_ACTION_ID
 from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID

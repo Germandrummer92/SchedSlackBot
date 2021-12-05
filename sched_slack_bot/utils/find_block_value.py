@@ -2,7 +2,7 @@ import logging
 from enum import Enum
 from typing import Optional, Union, List
 
-from sched_slack_bot.model.slack_body import SlackState
+from sched_slack_bot.utils.slack_typing_stubs import SlackState
 
 logger = logging.getLogger(__name__)
 

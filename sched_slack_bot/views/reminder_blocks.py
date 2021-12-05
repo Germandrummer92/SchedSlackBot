@@ -3,7 +3,7 @@ from typing import List
 from slack_sdk.models.blocks import ConfirmObject, Block, SectionBlock, \
     MarkdownTextObject, ButtonElement
 
-from sched_slack_bot.reminder.reminder import Reminder
+from sched_slack_bot.model.reminder import Reminder
 
 SKIP_CURRENT_MEMBER_ACTION_ID = "SCHED_SLACK_BOT_SKIP_ACTION_ID"
 
