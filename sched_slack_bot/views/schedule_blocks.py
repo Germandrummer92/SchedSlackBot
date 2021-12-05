@@ -11,6 +11,7 @@ DELETE_SCHEDULE_ACTION_ID = "SCHED_SLACK_BOT_DELETE_SCHEDULE"
 def create_delete_schedule_block(schedule: Schedule) -> ActionsBlock:
     return ActionsBlock(elements=[
         ButtonElement(text=PlainTextObject(text="Delete"), action_id=DELETE_SCHEDULE_ACTION_ID,
+                      style="danger",
                       confirm=ConfirmObject(text=f"Are you sure you want to delete {schedule.display_name}?",
                                             title=f"Delete {schedule.display_name}?",
                                             confirm="Delete", deny="Cancel", style="danger")

@@ -6,6 +6,10 @@ class Reminder:
         self._schedule = schedule
 
     @property
+    def schedule_id(self) -> str:
+        return self._schedule.id
+
+    @property
     def channel_id_to_notify_in(self) -> str:
         return self._schedule.channel_id_to_notify_in
 

@@ -32,3 +32,11 @@ class MongoScheduleAccess(ScheduleAccess):
     def delete_schedule(self, schedule_id: str) -> None:
         logger.info(f"Deleting schedule with id {schedule_id}")
         self._collection.delete_one({"id": schedule_id})
+
+    def update_schedule(self, schedule_id_to_update: str, new_schedule: Schedule) -> None:
+        logger.info(f"Updating schedule with id {schedule_id_to_update}")
+
+        update = new_schedule.as_json()
+        self._collection.replace_one(filter={"id": schedule_id_to_update}, replacement=update)
+
+

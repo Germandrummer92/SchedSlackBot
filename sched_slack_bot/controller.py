@@ -11,6 +11,7 @@ from sched_slack_bot.data.schedule_access import ScheduleAccess
 from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.model.slack_body import SlackBody
 from sched_slack_bot.model.slack_event import SlackEvent
+from sched_slack_bot.reminder.reminder import Reminder
 from sched_slack_bot.reminder.scheduler import ReminderScheduler
 from sched_slack_bot.reminder.slack_sender import SlackReminderSender
 from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_the_past
@@ -81,7 +82,7 @@ class AppController:
         self._schedule_access = MongoScheduleAccess(mongo_url=mongo_url)
         self._slack_client = WebClient(token=slack_bot_token)
         self._reminder_sender = SlackReminderSender(client=self._slack_client)
-        self._reminder_scheduler = ReminderScheduler()
+        self._reminder_scheduler = ReminderScheduler(reminder_executed_callback=self.handle_reminder_executed)
         self._app = App(name="sched_slack_bot",
                         token=slack_bot_token,
                         signing_secret=slack_signing_secret,
@@ -94,7 +95,7 @@ class AppController:
     def _start_all_saved_schedules(self) -> None:
         saved_schedules = self.schedule_access.get_available_schedules()
 
-        logger.info(f"Found {saved_schedules} schedules to start reminders for!")
+        logger.info(f"Found {len(saved_schedules)} schedules to start reminders for!")
 
         schedules_to_start = list(map(fix_schedule_from_the_past, saved_schedules))
         self.reminder_scheduler.schedule_all_reminders(schedules=schedules_to_start,
@@ -106,7 +107,12 @@ class AppController:
         self.app.event(event="app_home_opened")(self.handle_app_home_opened)
         self.app.block_action(constraints=DELETE_SCHEDULE_ACTION_ID)(self.handle_clicked_delete_button)
         self.app.block_action(constraints=CREATE_BUTTON_ACTION_ID)(self.handle_clicked_create_schedule)
-        self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])
+        self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])(
+            self.handle_submitted_create_schedule)
+
+    def handle_reminder_executed(self, next_schedule: Schedule):
+        self.schedule_access.update_schedule(schedule_id_to_update=next_schedule.id,
+                                             new_schedule=next_schedule)
 
     def handle_app_home_opened(self, event: SlackEvent):
         user = event["user"]
@@ -128,6 +134,7 @@ class AppController:
         schedule_id = actions[0]["block_id"]
         logger.info(f"Confirmed Deletion of schedule {schedule_id}")
 
+        self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule_id)
         self.schedule_access.delete_schedule(schedule_id=schedule_id)
         self.slack_client.views_publish(
             view=get_app_home_view(schedules=self.schedule_access.get_available_schedules()),
