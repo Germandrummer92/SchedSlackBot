@@ -57,4 +57,4 @@ jobs:
         poetry install
     - name: Run tests
       run: |
-      poetry run pytest test_sched_slack_bot --cov sched_slack_bot
+        poetry run pytest test_sched_slack_bot --cov sched_slack_bot
