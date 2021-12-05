@@ -76,5 +76,5 @@ jobs:
           tags: latest
           registry: ghcr.io/germandrummer92/schedslackbot
           dockerfile: Dockerfile
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.GHCR_USERNAME }}
+          password: ${{ secrets.GHCR_TOKEN }}
