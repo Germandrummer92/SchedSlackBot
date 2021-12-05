@@ -72,7 +72,7 @@ jobs:
       - uses: mr-smithers-excellent/docker-build-push@v5
         name: Build & push Docker image
         with:
-          image: germandrummer92/schedslackbot
+          image: schedslackbot
           tags: latest
           registry: ghcr.io
           dockerfile: Dockerfile
