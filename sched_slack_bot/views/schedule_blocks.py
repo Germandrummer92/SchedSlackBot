@@ -22,7 +22,8 @@ def create_delete_schedule_block(schedule: Schedule) -> ActionsBlock:
 def blocks_for_schedule(schedule: Schedule) -> List[Block]:
     return [
         SectionBlock(text=MarkdownTextObject(
-            text=f":calendar: Schedule *{schedule.display_name}*: Next-Rotation: _{schedule.next_rotation}_")),
+            text=f":calendar: Schedule *{schedule.display_name}*: Next-Rotation: _{schedule.next_rotation}_"
+                 f" channel: <#{schedule.channel_id_to_notify_in}>")),
         SectionBlock(text=MarkdownTextObject(
             text=f"Next Responsible person: <@{schedule.current_user_to_notify}>, "
                  f"all users: {[f'<@{user}>' for user in schedule.members]}"
