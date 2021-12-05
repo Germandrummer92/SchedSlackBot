@@ -60,7 +60,7 @@ jobs:
         poetry run coverage run --source=sched_slack_bot -m pytest test_sched_slack_bot
     - name: Upload coveralls data
       run: |
-        poetry run coveralls
+        poetry run coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
