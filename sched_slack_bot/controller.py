@@ -1,3 +1,4 @@
+import dataclasses
 import logging
 import os
 from typing import Optional
@@ -11,10 +12,12 @@ from sched_slack_bot.data.schedule_access import ScheduleAccess
 from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.model.slack_body import SlackBody
 from sched_slack_bot.model.slack_event import SlackEvent
+from sched_slack_bot.reminder.reminder import Reminder
 from sched_slack_bot.reminder.scheduler import ReminderScheduler
 from sched_slack_bot.reminder.slack_sender import SlackReminderSender
 from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_the_past
 from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
+from sched_slack_bot.views.reminder_blocks import SKIP_CURRENT_MEMBER_ACTION_ID
 from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID
 from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG, SCHEDULE_NEW_DIALOG_CALL_BACK_ID
 
@@ -106,6 +109,7 @@ class AppController:
         self.app.event(event="app_home_opened")(self.handle_app_home_opened)
         self.app.block_action(constraints=DELETE_SCHEDULE_ACTION_ID)(self.handle_clicked_delete_button)
         self.app.block_action(constraints=CREATE_BUTTON_ACTION_ID)(self.handle_clicked_create_schedule)
+        self.app.action(constraints=SKIP_CURRENT_MEMBER_ACTION_ID)(self.handle_clicked_confirm_skip)
         self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])(
             self.handle_submitted_create_schedule)
 
@@ -164,3 +168,33 @@ class AppController:
             view=get_app_home_view(schedules=self.schedule_access.get_available_schedules()),
             user_id=body["user"]["id"]
         )
+
+    def handle_clicked_confirm_skip(self, ack: Ack, body: SlackBody) -> None:
+        ack()
+
+        actions = body["actions"]
+
+        if len(actions) != 1:
+            logger.error(f"Got an unexpected list of actions for the skip button: {actions}")
+            return
+
+        schedule_id = actions[0]["block_id"]
+
+        logger.info(f"Clicked Skip current Schedule user from {body['user']} for schedule {schedule_id}")
+
+        schedule = self.schedule_access.get_schedule(schedule_id=schedule_id)
+        if schedule is None:
+            logger.error(f"Error when skipping for schedule with id {schedule_id}, already deleted!")
+            return
+
+        self.reminder_sender.send_skip_message(reminder=Reminder(schedule=schedule))
+
+        schedule_with_skipped_index = dataclasses.replace(schedule, current_index=schedule.next_index)
+
+        self.schedule_access.update_schedule(schedule_id_to_update=schedule_id,
+                                             new_schedule=schedule_with_skipped_index)
+        self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule_id)
+        self.reminder_scheduler.schedule_reminder(schedule=schedule_with_skipped_index,
+                                                  reminder_sender=self.reminder_sender)
+
+        logger.info(f"Successfully skipped current schedule user from {body['user']} for schedule {schedule_id}")

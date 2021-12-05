@@ -38,3 +38,13 @@ class MongoScheduleAccess(ScheduleAccess):
 
         update = new_schedule.as_json()
         self._collection.replace_one(filter={"id": schedule_id_to_update}, replacement=update)
+
+    def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
+        logger.info(f"Getting schedule with id {schedule_id}")
+
+        found_schedule = self._collection.find_one({"id": schedule_id})
+
+        if found_schedule is None:
+            return None
+
+        return Schedule.from_json(json=found_schedule)
