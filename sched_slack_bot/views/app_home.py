@@ -31,7 +31,7 @@ def get_app_home_view(schedules: List[Schedule]) -> View:
                         text="Powered by <https://github.com/Germandrummer92/SchedSlackBot"
                              "|github.com/Germandrummer92/SchedSlackBot> with :heart:")),
                     SectionBlock(text=MarkdownTextObject(
-                        text="Icon courtesy of <https://www.freepik.com/vectors/bannerz"
+                        text="Icon courtesy of <https://www.freepik.com/vectors/banner"
                              "|makyz>")),
                     DividerBlock(),
                     *schedules_blocks,
