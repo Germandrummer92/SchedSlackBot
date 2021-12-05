@@ -1,8 +1,7 @@
 # SchedSlackBot
 
 [![CI](https://github.com/Germandrummer92/SchedSlackBot/actions/workflows/ci.yml/badge.svg)](https://github.com/Germandrummer92/SchedSlackBot/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/Germandrummer92/SchedSlackBot/badge.svg)](https://coveralls.io/github/Germandrummer92/SchedSlackBot)
-
+[![Coverage Status](https://coveralls.io/repos/github/Germandrummer92/SchedSlackBot/badge.svg?branch=main)](https://coveralls.io/github/Germandrummer92/SchedSlackBot?branch=main)
 ![Image of a Calendar](https://github.com/Germandrummer92/SchedSlackBot/raw/main/assets/calendar.jpg "Rotational Scheduling")
 
 A Kubernetes self-hosted Slack bot able to setup rotating schedules for Reminders.
