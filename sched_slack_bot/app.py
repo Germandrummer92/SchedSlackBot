@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Callable
 
-from slack_bolt import App
+from slack_bolt import App, Ack
 from slack_bolt.request.payload_utils import is_view_submission
 from slack_sdk import WebClient
 
@@ -13,7 +13,8 @@ from sched_slack_bot.model.slack_event import SlackEvent
 from sched_slack_bot.reminder.scheduler import REMINDER_SCHEDULER
 from sched_slack_bot.reminder.slack_sender import SlackReminderSender
 from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_the_past
-from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
+from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID, CREATE_BLOCK_ID
+from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID
 from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG_CALL_BACK_ID, \
     SCHEDULE_NEW_DIALOG
 
@@ -37,9 +38,13 @@ reminder_sender = SlackReminderSender(client=slack_client)
 def start_all_schedules() -> None:
     saved_schedules = data_access.get_available_schedules()
 
+    logger.info(f"Found {saved_schedules} schedules to start reminders for!")
+
     schedules_to_start = list(map(fix_schedule_from_the_past, saved_schedules))
 
     REMINDER_SCHEDULER.schedule_all_reminders(schedules=schedules_to_start, reminder_sender=reminder_sender)
+
+    logger.info(f"Started {schedules_to_start} reminders!")
 
 
 @app.event("app_home_opened")
@@ -53,9 +58,29 @@ def update_home_tab(client: WebClient, event: SlackEvent) -> None:
     )
 
 
-@app.action(CREATE_BUTTON_ACTION_ID)
-def clicked_create_schedule(ack: Callable[[], None], body: SlackBody) -> None:
+@app.block_action(DELETE_SCHEDULE_ACTION_ID)
+def clicked_delete_button(ack: Ack, body: SlackBody) -> None:
     ack()
+    actions = body["actions"]
+
+    if len(actions) != 1:
+        logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
+        return
+
+    schedule_id = actions[0]["block_id"]
+    logger.info(f"Confirmed Deletion of schedule {schedule_id}")
+
+    data_access.delete_schedule(schedule_id=schedule_id)
+    slack_client.views_publish(
+        view=get_app_home_view(schedules=data_access.get_available_schedules()),
+        user_id=body["user"]["id"]
+    )
+
+
+@app.block_action(CREATE_BUTTON_ACTION_ID)
+def clicked_create_schedule(ack: Ack, body: SlackBody) -> None:
+    ack()
+    logger.info(f"User {body['user']} clicked the create button")
 
     trigger_id = body["trigger_id"]
 

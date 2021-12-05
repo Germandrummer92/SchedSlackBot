@@ -29,6 +29,6 @@ class MongoScheduleAccess(ScheduleAccess):
         logger.info(f"Saving schedule with id {schedule.id}")
         self._collection.insert_one(schedule.as_json())
 
-    def delete_schedule(self, schedule: Schedule) -> None:
-        logger.info(f"Deleting schedule with id {schedule.id}")
-        self._collection.delete_one({"id": schedule.id})
+    def delete_schedule(self, schedule_id: str) -> None:
+        logger.info(f"Deleting schedule with id {schedule_id}")
+        self._collection.delete_one({"id": schedule_id})

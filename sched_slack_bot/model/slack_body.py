@@ -1,4 +1,4 @@
-from typing import TypedDict, Dict
+from typing import TypedDict, Dict, List
 
 
 class SlackBodyUser(TypedDict, total=False):
@@ -21,7 +21,13 @@ class SlackView(TypedDict, total=False):
     id: str
 
 
+class SlackAction(TypedDict, total=False):
+    action_id: str
+    block_id: str
+
+
 class SlackBody(TypedDict, total=False):
     trigger_id: str
     user: SlackBodyUser
     view: SlackView
+    actions: List[SlackAction]

@@ -13,6 +13,7 @@ NO_SCHEDULES_BLOCK = SectionBlock(text=TextObject(
 ))
 
 CREATE_BUTTON_ACTION_ID = "SCHED_SLACK_BOT_CREATE"
+CREATE_BLOCK_ID = "SCHED_SLACK_BOT_CREATE_BLOCK"
 
 
 def get_app_home_view(schedules: List[Schedule]) -> View:
@@ -39,6 +40,6 @@ def get_app_home_view(schedules: List[Schedule]) -> View:
                         text="Create a new Schedule:"
                     )),
                     ActionsBlock(elements=[
-                        ButtonElement(text=PlainTextObject(text="Create"), action_id=CREATE_BUTTON_ACTION_ID)])
-
+                        ButtonElement(text=PlainTextObject(text="Create"), action_id=CREATE_BUTTON_ACTION_ID)],
+                        block_id=CREATE_BLOCK_ID)
                 ])

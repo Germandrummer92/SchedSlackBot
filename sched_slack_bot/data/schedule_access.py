@@ -14,5 +14,5 @@ class ScheduleAccess(abc.ABC):
         raise NotImplementedError("Not Implemented")
 
     @abc.abstractmethod
-    def delete_schedule(self, schedule: Schedule) -> None:
+    def delete_schedule(self, schedule_id: str) -> None:
         raise NotImplementedError("Not Implemented")
