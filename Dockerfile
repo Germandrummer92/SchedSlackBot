@@ -2,8 +2,8 @@ FROM python:3.10 as base
 
 WORKDIR /app
 
-COPY sched_slack_bot .
-COPY bin .
+COPY sched_slack_bot sched_slack_bot
+COPY bin bin
 COPY poetry.lock .
 COPY pyproject.toml .
 COPY setup.py .
