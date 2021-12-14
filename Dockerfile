@@ -3,7 +3,7 @@ FROM python:3.10 as base
 WORKDIR /app
 
 COPY sched_slack_bot sched_slack_bot
-COPY bin bin
+COPY bin/app.py app.py
 COPY poetry.lock .
 COPY pyproject.toml .
 COPY setup.py .
@@ -11,7 +11,8 @@ COPY setup.py .
 RUN apt-get -y install curl
 RUN curl -sSL https://install.python-poetry.org/install-poetry.py | python -
 ENV PATH=/root/.local/bin:$PATH
+RUN poetry config virtualenvs.create false
 
 RUN poetry install --no-dev --no-interaction --no-ansi
 
-ENTRYPOINT python bin/app.py
+ENTRYPOINT python app.py

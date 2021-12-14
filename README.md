@@ -48,6 +48,7 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
   --from-literal=slack_bot_token="xoxb-YourSlackBotToken"`
 
 * Adjust the "CLUSTER_DOMAIN" in the deployment.yml to match your specific k8s cluster
+* Adjust the "TLS_SUFFIX" to match your specific k8s tls suffix
 
 * Deploy the file:
   `kubectl apply -f deployment.yml`
