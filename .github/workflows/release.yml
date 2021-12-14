@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  release:
+    types:
+      - created
+  build_and_push_docker_image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Check out code
+      - uses: mr-smithers-excellent/docker-build-push@v5.6
+        name: Build & push Docker image
+        with:
+          image: schedslackbot
+          tags: $GITHUB_REF_NAME
+          registry: ghcr.io
+          dockerfile: Dockerfile
+          username: Germandrummer92
+          password: ${{ secrets.GITHUB_TOKEN }}

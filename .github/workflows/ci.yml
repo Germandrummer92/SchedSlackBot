@@ -73,7 +73,7 @@ jobs:
         name: Build & push Docker image
         with:
           image: schedslackbot
-          tags: latest
+          tags: $GITHUB_REF_NAME
           registry: ghcr.io
           dockerfile: Dockerfile
           username: Germandrummer92
