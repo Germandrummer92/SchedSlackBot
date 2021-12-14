@@ -19,7 +19,7 @@ class ReminderScheduler:
 
     def _get_thread_ident_for_schedule(self, schedule_id: str) -> int:
         with self._scheduled_jobs_lock:
-            # this timer has to be started
+            # this timer has to be started so the identifier cannot be None
             return self._timer_by_schedule_id[schedule_id].ident  # type: ignore
 
     def remove_reminder_for_schedule(self, schedule_id: str) -> None:

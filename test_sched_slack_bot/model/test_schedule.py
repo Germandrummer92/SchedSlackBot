@@ -18,7 +18,7 @@ from sched_slack_bot.views.schedule_dialog import CHANNEL_INPUT, DISPLAY_NAME_IN
 
 @pytest.fixture()
 def next_rotation_date() -> datetime.datetime:
-    return datetime.datetime(year=2500, month=12, day=1, hour=12, minute=0, second=0)
+    return datetime.datetime(year=2500, month=11, day=1, hour=12, minute=0, second=0)
 
 
 @pytest.fixture

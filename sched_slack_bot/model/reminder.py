@@ -1,3 +1,5 @@
+from typing import Any
+
 from sched_slack_bot.model.schedule import Schedule
 
 
@@ -32,3 +34,9 @@ class Reminder:
     @property
     def next_schedule(self) -> Schedule:
         return self._schedule.next_schedule
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Reminder):
+            return False
+
+        return self._schedule == other._schedule
