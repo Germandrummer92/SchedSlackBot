@@ -120,10 +120,7 @@ class AppController:
         user = event["user"]
 
         logger.info(f"{user=} clicked on App.Home")
-        self.slack_client.views_publish(
-            user_id=user,
-            view=get_app_home_view(schedules=self.schedule_access.get_available_schedules())
-        )
+        self._update_app_home(user_id=user)
 
     def handle_clicked_delete_button(self, ack: Ack, body: SlackBody) -> None:
         ack()
@@ -138,9 +135,12 @@ class AppController:
 
         self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule_id)
         self.schedule_access.delete_schedule(schedule_id=schedule_id)
+        self._update_app_home(user_id=body["user"]["id"])
+
+    def _update_app_home(self, user_id: str) -> None:
         self.slack_client.views_publish(
-            view=get_app_home_view(schedules=self.schedule_access.get_available_schedules()),
-            user_id=body["user"]["id"]
+            user_id=user_id,
+            view=get_app_home_view(schedules=self.schedule_access.get_available_schedules())
         )
 
     def handle_clicked_create_schedule(self, ack: Ack, body: SlackBody) -> None:
@@ -163,10 +163,7 @@ class AppController:
         self.schedule_access.save_schedule(schedule=schedule)
 
         logger.info(f"Created Schedule {schedule}")
-        self.slack_client.views_publish(
-            view=get_app_home_view(schedules=self.schedule_access.get_available_schedules()),
-            user_id=body["user"]["id"]
-        )
+        self._update_app_home(user_id=body["user"]["id"])
 
     def handle_clicked_confirm_skip(self, ack: Ack, body: SlackBody) -> None:
         ack()
