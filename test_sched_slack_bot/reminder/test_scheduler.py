@@ -70,10 +70,10 @@ def test_schedule_all_remindesr(scheduler: ReminderScheduler, reminder: Reminder
         time.sleep(0.1)
 
     assert reminder_sender.send_reminder.call_count == 2
-    scheduler.schedule_reminder.assert_called_once_with(schedule=reminder.next_schedule,
-                                                        reminder_sender=reminder_sender)
+    scheduler.schedule_reminder.assert_called_with(schedule=reminder.next_schedule,
+                                                   reminder_sender=reminder_sender)
     if isinstance(scheduler._reminder_executed_callback, mock.MagicMock):
-        scheduler._reminder_executed_callback.assert_called_once_with(reminder.next_schedule)
+        scheduler._reminder_executed_callback.assert_called_with(reminder.next_schedule)
 
 
 def test_schedule_reminder(scheduler: ReminderScheduler, reminder: Reminder, schedule: Schedule,
