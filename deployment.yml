@@ -7,7 +7,7 @@ spec:
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app: sched-slack-bot-$DEPLOYMENT_ID
+      app: sched-slack-bot
   template:
     metadata:
       labels:
@@ -27,10 +27,6 @@ spec:
             requests:
               cpu: 200m
               memory: 1Gi
-          volumeMounts:
-            - name: mongodb-credentials-volume
-              mountPath: '/etc/mongodb'
-              readOnly: true
           env:
             - name: SLACK_BOT_TOKEN
               valueFrom:
@@ -77,7 +73,7 @@ spec:
       http:
         paths:
           - backend:
-              serviceName: sched-slack-bot-$DEPLOYMENT_ID
+              serviceName: sched-slack-bot
               servicePort: 3000
   tls:
     - hosts:
