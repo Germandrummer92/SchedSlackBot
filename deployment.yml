@@ -47,10 +47,10 @@ spec:
                 secretKeyRef:
                   key: slack_signing_secret
                   name: sched-slack-bot-secret
-          volumes:
-            - name: sched-slack-bot-secret
-              secret:
-                secretName: sched-slack-bot-secret
+      volumes:
+      - name: sched-slack-bot-secret
+        secret:
+          secretName: sched-slack-bot-secret
 ---
 apiVersion: v1
 kind: Service
