@@ -92,7 +92,7 @@ def slack_body() -> SlackBody:
                                                             "SLACK_SIGNING_SECRET"])
 def test_controller_fails_without_required_environment_variables(controller: AppController,
                                                                  required_missing_variable_name: str) -> None:
-    del os.environ[required_missing_variable_name]
+    os.environ.pop(required_missing_variable_name, None)
     with pytest.raises(RuntimeError):
         controller.start()
 
@@ -146,6 +146,7 @@ def test_handle_clicked_handle_submit_creates_new_schedule(controller_with_mocks
                                                            mocked_slack_client: mock.MagicMock,
                                                            slack_body: SlackBody,
                                                            mocked_reminder_scheduler: mock.MagicMock,
+                                                           mocked_reminder_sender: mock.MagicMock,
                                                            schedule: Schedule) -> None:
     mocked_schedule_access.get_available_schedules.return_value = [schedule]
     ack = mock.MagicMock()
@@ -154,7 +155,7 @@ def test_handle_clicked_handle_submit_creates_new_schedule(controller_with_mocks
         controller_with_mocks.handle_submitted_create_schedule(ack=ack, body=slack_body)
 
     mocked_reminder_scheduler.schedule_reminder.assert_called_once_with(schedule=schedule,
-                                                                        reminder_sender=controller_with_mocks.reminder_sender)
+                                                                        reminder_sender=mocked_reminder_sender)
     ack.assert_called_once()
     mocked_schedule_access.save_schedule.assert_called_once_with(schedule=schedule)
     assert_published_home_view(mocked_slack_client=mocked_slack_client,
