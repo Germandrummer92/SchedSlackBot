@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sched-slack-bot
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: sched-slack-bot-$DEPLOYMENT_ID
+  template:
+    metadata:
+      labels:
+        app: sched-slack-bot
+    spec:
+      containers:
+        - image: ghcr.io/germandrummer92/schedslackbot:v1
+          imagePullPolicy: Always
+          name: sched-slack-bot
+          ports:
+            - containerPort: 3000
+              name: http-port
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              cpu: 200m
+              memory: 1Gi
+          volumeMounts:
+            - name: mongodb-credentials-volume
+              mountPath: '/etc/mongodb'
+              readOnly: true
+          env:
+            - name: SLACK_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: slack_bot_token
+                  name: sched-slack-bot-secret
+            - name: MONGO_URL
+              valueFrom:
+                secretKeyRef:
+                  key: mongo_url
+                  name: sched-slack-bot-secret
+            - name: SLACK_SIGNING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: slack_signing_secret
+                  name: sched-slack-bot-secret
+          volumes:
+            - name: sched-slack-bot-secret
+              secret:
+                secretName: sched-slack-bot-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sched-slack-bot
+spec:
+  ports:
+    - port: 3000
+      targetPort: http-port
+  selector:
+    app: sched-slack-bot
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: sched-slack-bot
+  namespace: default
+spec:
+  rules:
+    - host: sched-slack-bot.CLUSTER_DOMAIN
+      http:
+        paths:
+          - backend:
+              serviceName: sched-slack-bot-$DEPLOYMENT_ID
+              servicePort: 3000
+  tls:
+    - hosts:
+        - sched-slack-bot.CLUSTER_DOMAIN
+      secretName: TLS_SUFFIX

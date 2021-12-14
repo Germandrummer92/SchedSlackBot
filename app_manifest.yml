@@ -1,0 +1,32 @@
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: SchedSlackBot
+  description: Scheduling Slack Bot to handle rotating schedules
+  background_color: "#000000"
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: true
+  bot_user:
+    display_name: Scheduling Slack Bot
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - channels:read
+      - chat:write
+      - chat:write.public
+settings:
+  event_subscriptions:
+    request_url: #REPLACE WITH YOUR REQUEST URL
+    bot_events:
+      - app_home_opened
+  interactivity:
+    is_enabled: true
+    request_url: #REPLACE WITH YOUR REQUEST URL
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
