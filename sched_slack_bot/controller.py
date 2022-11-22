@@ -1,7 +1,7 @@
 import dataclasses
 import logging
 import os
-from typing import Any, Optional
+from typing import Optional
 
 from slack_bolt import App, Ack
 from slack_bolt.adapter.fastapi import SlackRequestHandler
@@ -76,7 +76,6 @@ class AppController:
         mongo_url = os.environ.get("MONGO_URL")
         slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
         slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
-        port = int(os.environ.get("PORT", 3000))
 
         if mongo_url is None or slack_bot_token is None or slack_signing_secret is None:
             raise RuntimeError("Environment variables 'MONGO_URL', "
