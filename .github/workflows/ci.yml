@@ -73,7 +73,7 @@ jobs:
         with:
           image: schedslackbot
           # see https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
-          tags: ${{ github.ref_name }}
+          tags: job-${{ github.job }}
           registry: ghcr.io
           dockerfile: Dockerfile
           username: Germandrummer92
