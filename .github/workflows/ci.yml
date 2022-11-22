@@ -72,7 +72,8 @@ jobs:
         name: Build & push Docker image
         with:
           image: schedslackbot
-          tags: $GITHUB_REF_NAME
+          # see https://docs.github.com/en/actions/learn-github-actions/contexts#github-context
+          tags: ci-${{ github.run_id }}
           registry: ghcr.io
           dockerfile: Dockerfile
           username: Germandrummer92

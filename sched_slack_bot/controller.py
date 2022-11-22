@@ -35,6 +35,27 @@ class AppController:
         self._reminder_sender: Optional[SlackReminderSender] = None
         self._app: Optional[App] = None
 
+    def start(self) -> None:
+        mongo_url = os.environ.get("MONGO_URL")
+        slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
+        slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
+
+        if mongo_url is None or slack_bot_token is None or slack_signing_secret is None:
+            raise RuntimeError("Environment variables 'MONGO_URL', "
+                               "'SLACK_BOT_TOKEN' and 'SLACK_SIGNING_SECRET' are required")
+
+        self._schedule_access = MongoScheduleAccess(mongo_url=mongo_url)
+        self._slack_client = WebClient(token=slack_bot_token)
+        self._reminder_sender = SlackReminderSender(client=self._slack_client)
+        self._reminder_scheduler = ReminderScheduler(reminder_executed_callback=self.handle_reminder_executed)
+        self._app = App(name="sched_slack_bot",
+                        token=slack_bot_token,
+                        signing_secret=slack_signing_secret,
+                        logger=logger)
+
+        self._start_all_saved_schedules()
+        self._register_listeners()
+
     @property
     def schedule_access(self) -> ScheduleAccess:
         if self._schedule_access is None:
@@ -69,29 +90,6 @@ class AppController:
             raise UnstartedControllerException("Controller unstarted, please call start before!")
 
         return self._app
-
-    def start(self) -> None:
-        mongo_url = os.environ.get("MONGO_URL")
-        slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
-        slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
-        port = int(os.environ.get("PORT", 3000))
-
-        if mongo_url is None or slack_bot_token is None or slack_signing_secret is None:
-            raise RuntimeError("Environment variables 'MONGO_URL', "
-                               "'SLACK_BOT_TOKEN' and 'SLACK_SIGNING_SECRET' are required")
-
-        self._schedule_access = MongoScheduleAccess(mongo_url=mongo_url)
-        self._slack_client = WebClient(token=slack_bot_token)
-        self._reminder_sender = SlackReminderSender(client=self._slack_client)
-        self._reminder_scheduler = ReminderScheduler(reminder_executed_callback=self.handle_reminder_executed)
-        self._app = App(name="sched_slack_bot",
-                        token=slack_bot_token,
-                        signing_secret=slack_signing_secret,
-                        logger=logger)
-
-        self._start_all_saved_schedules()
-        self._register_listeners()
-        self._app.start(port=port)
 
     def _start_all_saved_schedules(self) -> None:
         saved_schedules = self.schedule_access.get_available_schedules()
