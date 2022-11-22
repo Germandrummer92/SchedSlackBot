@@ -2,13 +2,9 @@ import logging
 
 from sched_slack_bot.controller import AppController
 
+logging.basicConfig(level=logging.DEBUG)
+
 logger = logging.getLogger(__name__)
 
-api = None
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
-
-    controller = AppController()
-
-    api = controller.start()
+controller = AppController()
+api = controller.start()
