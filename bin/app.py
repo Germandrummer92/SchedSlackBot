@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 controller = AppController()
+controller.start()
 
 app_handler = SlackRequestHandler(controller.app)
 api = FastAPI()
