@@ -4,10 +4,8 @@ import os
 from typing import Optional
 
 from slack_bolt import App, Ack
-from slack_bolt.adapter.fastapi import SlackRequestHandler
 from slack_bolt.request.payload_utils import is_view_submission
 from slack_sdk import WebClient
-from fastapi import FastAPI, Request, Response
 
 from sched_slack_bot.data.mongo.mongo_schedule_access import MongoScheduleAccess
 from sched_slack_bot.data.schedule_access import ScheduleAccess
@@ -31,11 +29,26 @@ class UnstartedControllerException(Exception):
 
 class AppController:
     def __init__(self) -> None:
-        self._schedule_access: Optional[ScheduleAccess] = None
-        self._slack_client: Optional[WebClient] = None
-        self._reminder_scheduler: Optional[ReminderScheduler] = None
-        self._reminder_sender: Optional[SlackReminderSender] = None
-        self._app: Optional[App] = None
+        mongo_url = os.environ.get("MONGO_URL")
+        slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
+        slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
+
+        if mongo_url is None or slack_bot_token is None or slack_signing_secret is None:
+            raise RuntimeError("Environment variables 'MONGO_URL', "
+                               "'SLACK_BOT_TOKEN' and 'SLACK_SIGNING_SECRET' are required")
+
+        self._schedule_access = MongoScheduleAccess(mongo_url=mongo_url)
+        self._slack_client = WebClient(token=slack_bot_token)
+        self._reminder_sender = SlackReminderSender(client=self._slack_client)
+        self._reminder_scheduler = ReminderScheduler(reminder_executed_callback=self.handle_reminder_executed)
+        self._app = App(name="sched_slack_bot",
+                        token=slack_bot_token,
+                        signing_secret=slack_signing_secret,
+                        logger=logger)
+
+        self._start_all_saved_schedules()
+        self._register_listeners()
+
 
     @property
     def schedule_access(self) -> ScheduleAccess:
@@ -71,40 +84,6 @@ class AppController:
             raise UnstartedControllerException("Controller unstarted, please call start before!")
 
         return self._app
-
-    def start(self) -> FastAPI:
-        mongo_url = os.environ.get("MONGO_URL")
-        slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
-        slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
-
-        if mongo_url is None or slack_bot_token is None or slack_signing_secret is None:
-            raise RuntimeError("Environment variables 'MONGO_URL', "
-                               "'SLACK_BOT_TOKEN' and 'SLACK_SIGNING_SECRET' are required")
-
-        self._schedule_access = MongoScheduleAccess(mongo_url=mongo_url)
-        self._slack_client = WebClient(token=slack_bot_token)
-        self._reminder_sender = SlackReminderSender(client=self._slack_client)
-        self._reminder_scheduler = ReminderScheduler(reminder_executed_callback=self.handle_reminder_executed)
-        self._app = App(name="sched_slack_bot",
-                        token=slack_bot_token,
-                        signing_secret=slack_signing_secret,
-                        logger=logger)
-
-        self._start_all_saved_schedules()
-        self._register_listeners()
-
-        app_handler = SlackRequestHandler(self._app)
-        api = FastAPI()
-
-        @api.post("/slack/events")
-        async def endpoint(req: Request) -> Response:
-            return await app_handler.handle(req)
-
-        @api.get("/health")
-        async def health(req: Request) -> Response:
-            return Response(status_code=200)
-
-        return api
 
     def _start_all_saved_schedules(self) -> None:
         saved_schedules = self.schedule_access.get_available_schedules()
