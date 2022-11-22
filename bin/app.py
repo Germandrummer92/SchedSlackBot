@@ -14,11 +14,12 @@ controller = AppController()
 app_handler = SlackRequestHandler(controller.app)
 api = FastAPI()
 
+
 @api.post("/slack/events")
 async def endpoint(req: Request) -> Response:
     return await app_handler.handle(req)
 
+
 @api.get("/health")
 async def health(req: Request) -> Response:
     return Response(status_code=200)
-

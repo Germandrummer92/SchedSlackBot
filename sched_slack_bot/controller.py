@@ -1,7 +1,6 @@
 import dataclasses
 import logging
 import os
-from typing import Optional
 
 from slack_bolt import App, Ack
 from slack_bolt.request.payload_utils import is_view_submission
@@ -48,7 +47,6 @@ class AppController:
 
         self._start_all_saved_schedules()
         self._register_listeners()
-
 
     @property
     def schedule_access(self) -> ScheduleAccess:
