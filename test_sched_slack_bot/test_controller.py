@@ -90,10 +90,11 @@ def slack_body() -> SlackBody:
 
 @pytest.mark.parametrize("required_missing_variable_name", ["MONGO_URL", "SLACK_BOT_TOKEN",
                                                             "SLACK_SIGNING_SECRET"])
-def test_controller_fails_without_required_environment_variables(required_missing_variable_name: str) -> None:
+def test_controller_fails_without_required_environment_variables(controller: AppController,
+                                                                 required_missing_variable_name: str) -> None:
     os.environ.pop(required_missing_variable_name, None)
     with pytest.raises(RuntimeError):
-        AppController()
+        controller.start()
 
 
 def test_handle_reminder_executed_saves_updated_schedule(controller_with_mocks: AppController,

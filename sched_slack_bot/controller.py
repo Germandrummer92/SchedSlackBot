@@ -1,6 +1,7 @@
 import dataclasses
 import logging
 import os
+from typing import Optional
 
 from slack_bolt import App, Ack
 from slack_bolt.request.payload_utils import is_view_submission
@@ -28,6 +29,13 @@ class UnstartedControllerException(Exception):
 
 class AppController:
     def __init__(self) -> None:
+        self._schedule_access: Optional[ScheduleAccess] = None
+        self._slack_client: Optional[WebClient] = None
+        self._reminder_scheduler: Optional[ReminderScheduler] = None
+        self._reminder_sender: Optional[SlackReminderSender] = None
+        self._app: Optional[App] = None
+
+    def start(self) -> None:
         mongo_url = os.environ.get("MONGO_URL")
         slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
         slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
