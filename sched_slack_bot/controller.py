@@ -1,11 +1,13 @@
 import dataclasses
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from slack_bolt import App, Ack
+from slack_bolt.adapter.fastapi import SlackRequestHandler
 from slack_bolt.request.payload_utils import is_view_submission
 from slack_sdk import WebClient
+from fastapi import FastAPI, Request, Response
 
 from sched_slack_bot.data.mongo.mongo_schedule_access import MongoScheduleAccess
 from sched_slack_bot.data.schedule_access import ScheduleAccess
@@ -70,7 +72,7 @@ class AppController:
 
         return self._app
 
-    def start(self) -> None:
+    def start(self) -> FastAPI:
         mongo_url = os.environ.get("MONGO_URL")
         slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
         slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
@@ -91,7 +93,19 @@ class AppController:
 
         self._start_all_saved_schedules()
         self._register_listeners()
-        self._app.start(port=port)
+
+        app_handler = SlackRequestHandler(self._app)
+        api = FastAPI()
+
+        @api.post("/slack/events")
+        async def endpoint(req: Request) -> Response:
+            return await app_handler.handle(req)
+
+        @api.get("/health")
+        async def health(req: Request) -> Response:
+            return Response(status_code=200)
+
+        return api
 
     def _start_all_saved_schedules(self) -> None:
         saved_schedules = self.schedule_access.get_available_schedules()
