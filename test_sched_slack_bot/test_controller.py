@@ -18,7 +18,7 @@ from sched_slack_bot.reminder.sender import ReminderSender
 from sched_slack_bot.utils.slack_typing_stubs import SlackEvent, SlackBody, SlackBodyUser, SlackView, SlackState, \
     SlackAction
 from sched_slack_bot.views.app_home import get_app_home_view
-from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG
+from sched_slack_bot.views.schedule_dialog import get_edit_schedule_block
 
 
 @pytest.fixture
@@ -138,7 +138,7 @@ def test_handle_clicked_create_opens_schedule_dialog(controller_with_mocks: AppC
 
     ack.assert_called_once()
     mocked_slack_client.views_open.assert_called_once_with(trigger_id=slack_body["trigger_id"],
-                                                           view=SCHEDULE_NEW_DIALOG)
+                                                           view=get_edit_schedule_block())
 
 
 def test_handle_clicked_handle_submit_creates_new_schedule(controller_with_mocks: AppController,

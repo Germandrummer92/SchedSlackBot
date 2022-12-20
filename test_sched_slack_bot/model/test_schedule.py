@@ -12,8 +12,9 @@ from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackView, Slac
     SlackInputBlockState
 from sched_slack_bot.views.datetime_selector import DatetimeSelectorType
 from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
-from sched_slack_bot.views.schedule_dialog import CHANNEL_INPUT, DISPLAY_NAME_INPUT, USERS_INPUT, \
-    FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
+from sched_slack_bot.views.schedule_dialog import FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
+from sched_slack_bot.views.schedule_dialog_constants import DISPLAY_NAME_BLOCK_ID, USERS_INPUT_BLOCK_ID, \
+    CHANNEL_INPUT_BLOCK_ID
 
 
 @pytest.fixture()
@@ -65,17 +66,17 @@ def valid_slack_body(minimum_slack_body: SlackBody, schedule: Schedule) -> Slack
     valid_slack_body = copy.deepcopy(minimum_slack_body)
 
     # mypy cant deal with dynamic typed dicts
-    valid_slack_body["view"]["state"]["values"][DISPLAY_NAME_INPUT.block_id] = {
+    valid_slack_body["view"]["state"]["values"][DISPLAY_NAME_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(**{SlackValueContainerType.static_select.value: {  # type: ignore
             "value": schedule.display_name, },
             "type": SlackValueContainerType.static_select.name})}
 
-    valid_slack_body["view"]["state"]["values"][USERS_INPUT.block_id] = {
+    valid_slack_body["view"]["state"]["values"][USERS_INPUT_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(
             **{SlackValueContainerType.multi_users_select.value: schedule.members,  # type: ignore
                "type": SlackValueContainerType.multi_users_select.name})}
 
-    valid_slack_body["view"]["state"]["values"][CHANNEL_INPUT.block_id] = {
+    valid_slack_body["view"]["state"]["values"][CHANNEL_INPUT_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(
             **{SlackValueContainerType.conversations_select.value: schedule.channel_id_to_notify_in,  # type: ignore
                "type": SlackValueContainerType.conversations_select.name})}
@@ -141,8 +142,8 @@ def test_schedule_from_modal_submission_raises_with_no_values(schedule: Schedule
         Schedule.from_modal_submission(submission_body=minimum_slack_body)
 
 
-@pytest.mark.parametrize("missing_block_id", [CHANNEL_INPUT.block_id, USERS_INPUT.block_id,
-                                              DISPLAY_NAME_INPUT.block_id,
+@pytest.mark.parametrize("missing_block_id", [CHANNEL_INPUT_BLOCK_ID, USERS_INPUT_BLOCK_ID,
+                                              DISPLAY_NAME_BLOCK_ID,
                                               *[FIRST_ROTATION_INPUT[k].block_id for k in FIRST_ROTATION_INPUT.keys()],
                                               *[SECOND_ROTATION_INPUT[k].block_id for k in
                                                 SECOND_ROTATION_INPUT.keys()],
