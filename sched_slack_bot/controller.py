@@ -112,6 +112,10 @@ class AppController:
         self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])(
             self.handle_submitted_create_schedule)
 
+    @staticmethod
+    def _get_schedule_id_from_block_id(block_id: str) -> str:
+        return block_id.split("_")[0]
+
     def handle_reminder_executed(self, next_schedule: Schedule) -> None:
         self.schedule_access.update_schedule(schedule_id_to_update=next_schedule.id,
                                              new_schedule=next_schedule)
@@ -130,7 +134,7 @@ class AppController:
             logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
             return
 
-        schedule_id = actions[0]["block_id"].split("_")[0]
+        schedule_id = AppController._get_schedule_id_from_block_id(block_id=actions[0]["block_id"])
         logger.info(f"Confirmed Deletion of schedule {schedule_id}")
 
         self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule_id)
@@ -163,7 +167,7 @@ class AppController:
             logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
             return
 
-        schedule_id = actions[0]["block_id"].split("_")[0]
+        schedule_id = AppController._get_schedule_id_from_block_id(block_id=actions[0]["block_id"])
 
         logger.info(body)
 
