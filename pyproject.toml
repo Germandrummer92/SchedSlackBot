@@ -13,7 +13,7 @@ fastapi = "^0.87.0"
 uvicorn = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
-pytest = ">=6.2.5,<7.0.0"
+pytest = ">=6.2.5,<8.0.0"
 coveralls = ">=3.0.0,<4.0.0"
 mypy = ">=0.910,<1.0.0"
 flake8 = ">=4.0.0,<7.0.0"
