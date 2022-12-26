@@ -55,11 +55,11 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
 
 ## Development
 
-* Install python3.10 `sudo apt-get -y python3.10`
-* Install poetry `curl -sSL https://install.python-poetry.org/install-poetry.py | python3.10 -`
+* Install python3.10 `sudo apt-get -y python3.11`
+* Install poetry `curl -sSL https://install.python-poetry.org/install-poetry.py | python3.11 -`
 * Install dependencies with poetry `poetry install`
 * Setup pre-commit hook: `pre-commit install`
-* Follow the [#Setup Slack Bot](#Setting up a new Slack bot) guide to setup a test bot in your own workspace
+* Follow the [#Setting up a new Slack bot](#Setting up a new Slack bot) guide to setup a test bot in your own workspace
 * Set the `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` env variables
 * Setup a running mongo database instance and set the corresponding url in env variable `MONGO_URL`
 * Setup a reverse proxy (e.g [ngrok](https://ngrok.io))

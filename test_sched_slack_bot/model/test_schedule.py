@@ -10,11 +10,8 @@ from sched_slack_bot.model.schedule import Schedule, SERIALIZATION_DATE_FORMAT
 from sched_slack_bot.utils.find_block_value import SlackValueContainerType
 from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackView, SlackBody, SlackBodyUser, \
     SlackInputBlockState
-from sched_slack_bot.views.datetime_selector import DatetimeSelectorType
-from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
-from sched_slack_bot.views.schedule_dialog import FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
-from sched_slack_bot.views.schedule_dialog_constants import DISPLAY_NAME_BLOCK_ID, USERS_INPUT_BLOCK_ID, \
-    CHANNEL_INPUT_BLOCK_ID
+from sched_slack_bot.views.schedule_dialog_block_ids import DISPLAY_NAME_BLOCK_ID, USERS_INPUT_BLOCK_ID, \
+    CHANNEL_INPUT_BLOCK_ID, DatetimeSelectorType, get_datetime_block_ids, FIRST_ROTATION_LABEL, SECOND_ROTATION_LABEL
 
 
 @pytest.fixture()
@@ -46,16 +43,16 @@ def minimum_slack_body() -> SlackBody:
 
 
 def _add_valid_datetime_values(datetime_value: datetime.datetime, slack_body: SlackBody,
-                               date_input: Dict[DatetimeSelectorType, InputBlockWithBlockId]) -> None:
-    slack_body["view"]["state"]["values"][date_input[DatetimeSelectorType.DATE].block_id] = {
+                               date_input_block_ids: Dict[DatetimeSelectorType, str]) -> None:
+    slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.DATE]] = {
         "subBlock": SlackInputBlockState(
             **{SlackValueContainerType.datepicker.value: datetime_value.date().isoformat(),  # type: ignore
                "type": SlackValueContainerType.datepicker.name})}
-    slack_body["view"]["state"]["values"][date_input[DatetimeSelectorType.HOUR].block_id] = {
+    slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.HOUR]] = {
         "subBlock": SlackInputBlockState(
             **{SlackValueContainerType.static_select.value: {"value": str(datetime_value.hour)},  # type: ignore
                "type": SlackValueContainerType.static_select.name})}
-    slack_body["view"]["state"]["values"][date_input[DatetimeSelectorType.MINUTE].block_id] = {
+    slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.MINUTE]] = {
         "subBlock": SlackInputBlockState(
             **{SlackValueContainerType.static_select.value: {"value": str(datetime_value.minute)},  # type: ignore
                "type": SlackValueContainerType.static_select.name})}
@@ -85,9 +82,9 @@ def valid_slack_body(minimum_slack_body: SlackBody, schedule: Schedule) -> Slack
     schedule_second_date = schedule.next_rotation + schedule.time_between_rotations
 
     _add_valid_datetime_values(datetime_value=schedule_first_date, slack_body=valid_slack_body,
-                               date_input=FIRST_ROTATION_INPUT)
+                               date_input_block_ids=get_datetime_block_ids(label=FIRST_ROTATION_LABEL))
     _add_valid_datetime_values(datetime_value=schedule_second_date, slack_body=valid_slack_body,
-                               date_input=SECOND_ROTATION_INPUT)
+                               date_input_block_ids=get_datetime_block_ids(label=SECOND_ROTATION_LABEL))
 
     return valid_slack_body
 
@@ -144,10 +141,10 @@ def test_schedule_from_modal_submission_raises_with_no_values(schedule: Schedule
 
 @pytest.mark.parametrize("missing_block_id", [CHANNEL_INPUT_BLOCK_ID, USERS_INPUT_BLOCK_ID,
                                               DISPLAY_NAME_BLOCK_ID,
-                                              *[FIRST_ROTATION_INPUT[k].block_id for k in FIRST_ROTATION_INPUT.keys()],
-                                              *[SECOND_ROTATION_INPUT[k].block_id for k in
-                                                SECOND_ROTATION_INPUT.keys()],
-                                              ])
+                                              *[get_datetime_block_ids(label=FIRST_ROTATION_LABEL)[k] for k in
+                                                get_datetime_block_ids(label=FIRST_ROTATION_LABEL).keys()],
+                                              *[get_datetime_block_ids(label=SECOND_ROTATION_LABEL)[k] for k in
+                                                get_datetime_block_ids(label=SECOND_ROTATION_LABEL).keys()]])
 def test_schedule_from_modal_submission_raises_with_missing_values(schedule: Schedule,
                                                                    valid_slack_body: SlackBody,
                                                                    missing_block_id: str) -> None:

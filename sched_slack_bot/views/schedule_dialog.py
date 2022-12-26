@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from enum import StrEnum
+from typing import Optional, TYPE_CHECKING, Dict
 
 from slack_sdk.models.blocks import HeaderBlock, PlainTextObject, DividerBlock, PlainTextInputElement, \
     ConversationSelectElement, UserMultiSelectElement
 from slack_sdk.models.views import View
 
-from sched_slack_bot.views.schedule_dialog_constants import DISPLAY_NAME_BLOCK_ID, CHANNEL_INPUT_BLOCK_ID, \
-    USERS_INPUT_BLOCK_ID
+from sched_slack_bot.views.schedule_dialog_block_ids import DISPLAY_NAME_BLOCK_ID, CHANNEL_INPUT_BLOCK_ID, \
+    USERS_INPUT_BLOCK_ID, FIRST_ROTATION_LABEL, SECOND_ROTATION_LABEL, DatetimeSelectorType
 
 if TYPE_CHECKING:
     from sched_slack_bot.model.schedule import Schedule
@@ -42,14 +43,21 @@ def get_display_name_input(schedule: Optional[Schedule] = None) -> InputBlockWit
                                  block_id=DISPLAY_NAME_BLOCK_ID)
 
 
-FIRST_ROTATION_INPUT = get_datetime_selector(label="First Rotation Reminder/Rotation")
-SECOND_ROTATION_INPUT = get_datetime_selector(label="Second Rotation Reminder/Rotation")
-
-SCHEDULE_NEW_DIALOG_CALL_BACK_ID = "SCHED_SLACK_BOT_NEW_SCHEDULE_SUBMIT_ID"
-SCHEDULE_EDIT_DIALOG_CALL_BACK_ID = "SCHED_SLACK_BOT_EDIT_SCHEDULE_SUBMIT_ID"
+def get_first_rotation_block(schedule: Optional[Schedule] = None) -> Dict[DatetimeSelectorType, InputBlockWithBlockId]:
+    return get_datetime_selector(label=FIRST_ROTATION_LABEL, schedule=schedule)
 
 
-def get_edit_schedule_block(schedule: Optional[Schedule] = None) -> View:
+def get_second_rotation_block(schedule: Optional[Schedule] = None) -> Dict[DatetimeSelectorType, InputBlockWithBlockId]:
+    return get_datetime_selector(label=SECOND_ROTATION_LABEL, schedule=schedule)
+
+
+class ScheduleDialogCallback(StrEnum):
+    CREATE_DIALOG = "SCHED_SLACK_BOT_NEW_SCHEDULE_SUBMIT_ID"
+    EDIT_DIALOG = "SCHED_SLACK_BOT_EDIT_SCHEDULE_SUBMIT_ID"
+
+
+def get_edit_schedule_block(schedule: Optional[Schedule] = None,
+                            callback: ScheduleDialogCallback = ScheduleDialogCallback.CREATE_DIALOG) -> View:
     modal_type = "Create" if schedule is None else "Edit"
     return View(type="modal",
                 blocks=[
@@ -59,10 +67,10 @@ def get_edit_schedule_block(schedule: Optional[Schedule] = None) -> View:
                     get_display_name_input(schedule=schedule),
                     get_channel_input(schedule=schedule),
                     get_users_input(schedule=schedule),
-                    *FIRST_ROTATION_INPUT.values(),
-                    *SECOND_ROTATION_INPUT.values()
+                    *get_first_rotation_block(schedule=schedule).values(),
+                    *get_second_rotation_block(schedule=schedule).values()
 
                 ],
                 title="Rotating Schedule",
                 submit=modal_type,
-                callback_id=SCHEDULE_NEW_DIALOG_CALL_BACK_ID)
+                callback_id=callback)

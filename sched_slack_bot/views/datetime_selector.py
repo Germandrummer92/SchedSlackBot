@@ -1,46 +1,62 @@
-from enum import Enum
-from typing import Dict, List
+from typing import Optional
 
 from slack_sdk.models.blocks import PlainTextObject, DatePickerElement, StaticSelectElement, OptionGroup, \
     Option
 
+from sched_slack_bot.model.schedule import Schedule
 from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
+from sched_slack_bot.views.schedule_dialog_block_ids import get_datetime_block_ids, DatetimeSelectorType
 
 
-class DatetimeSelectorType(Enum):
-    DATE = "DATE"
-    HOUR = "HOUR"
-    MINUTE = "MINUTE"
+def _get_options_for_range(option_range: range, label: str) -> OptionGroup:
+    return OptionGroup(options=[Option(value=str(hour), label=str(hour)) for hour in option_range],
+                       label=PlainTextObject(text=label))
 
 
-def _get_options_for_range(option_range: range, label: str) -> List[OptionGroup]:
-    return [OptionGroup(options=[Option(value=str(hour), label=str(hour)) for hour in option_range],
-                        label=PlainTextObject(text=label))]
+def get_datetime_selector(label: str,
+                          schedule: Optional[Schedule] = None) -> dict[DatetimeSelectorType, InputBlockWithBlockId]:
 
-
-def get_datetime_selector(label: str) -> Dict[DatetimeSelectorType, InputBlockWithBlockId]:
     blocks = dict()
-    blocks[DatetimeSelectorType.DATE] = InputBlockWithBlockId(label=f"{label} Date",
+    block_ids = get_datetime_block_ids(label=label)
+    option_group_hours = _get_options_for_range(option_range=range(0, 24), label="Hour")
+    option_group_minute = _get_options_for_range(option_range=range(0, 60), label="Minute")
+
+    # format needs to match the format defined in DatePickerElement
+    initial_date = None if schedule is None else schedule.next_rotation.date().isoformat()
+
+    initial_hour: Optional[Option] = None
+    if schedule is not None:
+        hour_options = option_group_hours.options or []
+        initial_hour = [o for o in hour_options if o.value == str(schedule.next_rotation.hour)][0]
+
+    initial_minute: Optional[Option] = None
+    if schedule is not None:
+        minute_options = option_group_minute.options or []
+
+        initial_minute = [o for o in minute_options if o.value == str(schedule.next_rotation.minute)][0]
+
+    blocks[DatetimeSelectorType.DATE] = InputBlockWithBlockId(label=block_ids[DatetimeSelectorType.DATE],
                                                               hint=PlainTextObject(
                                                                   text="The date of the first Rotation/Reminder"),
-                                                              element=DatePickerElement(),
-                                                              block_id=f"{label} Date")
-    blocks[DatetimeSelectorType.HOUR] = InputBlockWithBlockId(label=f"{label} Hour",
+                                                              element=DatePickerElement(
+                                                                  initial_date=initial_date
+                                                              ),
+                                                              block_id=block_ids[DatetimeSelectorType.DATE])
+
+    blocks[DatetimeSelectorType.HOUR] = InputBlockWithBlockId(label=block_ids[DatetimeSelectorType.HOUR],
                                                               hint=PlainTextObject(
                                                                   text="The Hour of the first Rotation/Reminder"),
                                                               element=StaticSelectElement(
-                                                                  option_groups=_get_options_for_range(
-                                                                      option_range=range(0, 24),
-                                                                      label="Hour")),
-                                                              block_id=f"{label} Hour")
+                                                                  initial_option=initial_hour,
+                                                                  option_groups=[option_group_hours]),
+                                                              block_id=block_ids[DatetimeSelectorType.HOUR])
 
-    blocks[DatetimeSelectorType.MINUTE] = InputBlockWithBlockId(label=f"{label} Minute",
+    blocks[DatetimeSelectorType.MINUTE] = InputBlockWithBlockId(label=block_ids[DatetimeSelectorType.MINUTE],
                                                                 hint=PlainTextObject(
                                                                     text="The Minute of the first Rotation/Reminder"),
                                                                 element=StaticSelectElement(
-                                                                    option_groups=_get_options_for_range(
-                                                                        option_range=range(0, 60),
-                                                                        label="Minute")),
-                                                                block_id=f"{label} Minute")
+                                                                    initial_option=initial_minute,
+                                                                    option_groups=[option_group_minute]),
+                                                                block_id=block_ids[DatetimeSelectorType.MINUTE])
 
     return blocks

@@ -8,11 +8,8 @@ from typing import List, Optional, Union, Dict, Any
 
 from sched_slack_bot.utils.find_block_value import find_block_value
 from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackBody
-from sched_slack_bot.views.datetime_selector import DatetimeSelectorType
-from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
-from sched_slack_bot.views.schedule_dialog import FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
-from sched_slack_bot.views.schedule_dialog_constants import DISPLAY_NAME_BLOCK_ID, USERS_INPUT_BLOCK_ID, \
-    CHANNEL_INPUT_BLOCK_ID
+from sched_slack_bot.views.schedule_dialog_block_ids import DISPLAY_NAME_BLOCK_ID, USERS_INPUT_BLOCK_ID, \
+    CHANNEL_INPUT_BLOCK_ID, DatetimeSelectorType, get_datetime_block_ids, FIRST_ROTATION_LABEL, SECOND_ROTATION_LABEL
 
 logger = logging.getLogger(__name__)
 
@@ -34,13 +31,13 @@ def _raise_if_not_list(value: Optional[Union[str, List[str]]], name: str) -> Lis
 
 
 def _get_datetime_from_modal_submission(state: SlackState,
-                                        date_input: Dict[
-                                            DatetimeSelectorType, InputBlockWithBlockId]) -> datetime.datetime:
-    date_string = find_block_value(state=state, block_id=date_input[DatetimeSelectorType.DATE].block_id)
+                                        date_input_block_ids: Dict[
+                                            DatetimeSelectorType, str]) -> datetime.datetime:
+    date_string = find_block_value(state=state, block_id=date_input_block_ids[DatetimeSelectorType.DATE])
     date_string = _raise_if_not_string(value=date_string, name="date")
-    hour = find_block_value(state=state, block_id=date_input[DatetimeSelectorType.HOUR].block_id)
+    hour = find_block_value(state=state, block_id=date_input_block_ids[DatetimeSelectorType.HOUR])
     hour = _raise_if_not_string(value=hour, name="hour")
-    minute = find_block_value(state=state, block_id=date_input[DatetimeSelectorType.MINUTE].block_id)
+    minute = find_block_value(state=state, block_id=date_input_block_ids[DatetimeSelectorType.MINUTE])
     minute = _raise_if_not_string(value=minute, name="minute")
 
     # no kwarg supported
@@ -129,8 +126,10 @@ class Schedule:
                                                    block_id=CHANNEL_INPUT_BLOCK_ID)
         channel_id_to_notify_in = _raise_if_not_string(value=channel_id_to_notify_in, name="channel_id_to_notify_in")
 
-        next_rotation = _get_datetime_from_modal_submission(state=state, date_input=FIRST_ROTATION_INPUT)
-        second_rotation = _get_datetime_from_modal_submission(state=state, date_input=SECOND_ROTATION_INPUT)
+        next_rotation = _get_datetime_from_modal_submission(state=state, date_input_block_ids=get_datetime_block_ids(
+            label=FIRST_ROTATION_LABEL))
+        second_rotation = _get_datetime_from_modal_submission(state=state, date_input_block_ids=get_datetime_block_ids(
+            label=SECOND_ROTATION_LABEL))
 
         time_between_rotations = second_rotation - next_rotation
 

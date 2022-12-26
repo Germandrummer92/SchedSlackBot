@@ -18,8 +18,7 @@ from sched_slack_bot.utils.slack_typing_stubs import SlackBody, SlackEvent
 from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
 from sched_slack_bot.views.reminder_blocks import SKIP_CURRENT_MEMBER_ACTION_ID
 from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID, EDIT_SCHEDULE_ACTION_ID
-from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG_CALL_BACK_ID, \
-    get_edit_schedule_block
+from sched_slack_bot.views.schedule_dialog import get_edit_schedule_block, ScheduleDialogCallback
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +108,8 @@ class AppController:
         self.app.block_action(constraints=CREATE_BUTTON_ACTION_ID)(self.handle_clicked_create_schedule)
         self.app.block_action(constraints=EDIT_SCHEDULE_ACTION_ID)(self.handle_clicked_edit_schedule)
         self.app.action(constraints=SKIP_CURRENT_MEMBER_ACTION_ID)(self.handle_clicked_confirm_skip)
-        self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])(
+        self.app.view(constraints=ScheduleDialogCallback.CREATE_DIALOG,
+                      matchers=[is_view_submission])(
             self.handle_submitted_create_schedule)
 
     @staticmethod
@@ -154,7 +154,8 @@ class AppController:
         trigger_id = body["trigger_id"]
 
         self.slack_client.views_open(trigger_id=trigger_id,
-                                     view=get_edit_schedule_block())
+                                     view=get_edit_schedule_block(
+                                         callback=ScheduleDialogCallback.CREATE_DIALOG))
 
     def handle_clicked_edit_schedule(self, ack: Ack, body: SlackBody) -> None:
         ack()
@@ -173,8 +174,10 @@ class AppController:
 
         schedule = self.schedule_access.get_schedule(schedule_id=schedule_id)
 
+        edit_schedule_block = get_edit_schedule_block(schedule=schedule,
+                                                      callback=ScheduleDialogCallback.EDIT_DIALOG)
         self.slack_client.views_open(trigger_id=trigger_id,
-                                     view=get_edit_schedule_block(schedule=schedule))
+                                     view=edit_schedule_block)
 
     def handle_submitted_create_schedule(self, ack: Ack, body: SlackBody) -> None:
         ack()
