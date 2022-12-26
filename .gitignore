@@ -124,3 +124,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 docker.iid
+
+# Mac Finder metafiles
+**/.DS_Store

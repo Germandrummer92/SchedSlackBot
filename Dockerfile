@@ -9,7 +9,6 @@ RUN poetry config virtualenvs.create false
 
 COPY poetry.lock .
 COPY pyproject.toml .
-COPY setup.py .
 RUN poetry install --only main --no-interaction --no-ansi
 
 COPY sched_slack_bot sched_slack_bot
