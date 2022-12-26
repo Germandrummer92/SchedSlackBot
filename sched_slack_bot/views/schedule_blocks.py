@@ -6,6 +6,7 @@ from slack_sdk.models.blocks import Block, SectionBlock, MarkdownTextObject, Div
 from sched_slack_bot.model.schedule import Schedule
 
 DELETE_SCHEDULE_ACTION_ID = "SCHED_SLACK_BOT_DELETE_SCHEDULE"
+EDIT_SCHEDULE_ACTION_ID = "SCHED_SLACK_BOT_EDIT_SCHEDULE"
 
 
 def create_delete_schedule_block(schedule: Schedule) -> ActionsBlock:
@@ -16,7 +17,14 @@ def create_delete_schedule_block(schedule: Schedule) -> ActionsBlock:
                                             title=f"Delete {schedule.display_name}?",
                                             confirm="Delete", deny="Cancel", style="danger")
                       )],
-        block_id=schedule.id)
+        block_id=schedule.id + "_delete")
+
+
+def create_edit_schedule_block(schedule: Schedule) -> ActionsBlock:
+    return ActionsBlock(elements=[
+        ButtonElement(text=PlainTextObject(text="Edit"), action_id=EDIT_SCHEDULE_ACTION_ID,
+                      )],
+        block_id=schedule.id + "_edit")
 
 
 def blocks_for_schedule(schedule: Schedule) -> List[Block]:
@@ -28,6 +36,7 @@ def blocks_for_schedule(schedule: Schedule) -> List[Block]:
             text=f"Next Responsible person: <@{schedule.current_user_to_notify}>, "
                  f"all users: {[f'<@{user}>' for user in schedule.members]}"
         )),
+        create_edit_schedule_block(schedule=schedule),
         create_delete_schedule_block(schedule=schedule),
         DividerBlock()
     ]

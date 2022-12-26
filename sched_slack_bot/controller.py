@@ -17,8 +17,9 @@ from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_t
 from sched_slack_bot.utils.slack_typing_stubs import SlackBody, SlackEvent
 from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
 from sched_slack_bot.views.reminder_blocks import SKIP_CURRENT_MEMBER_ACTION_ID
-from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID
-from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG, SCHEDULE_NEW_DIALOG_CALL_BACK_ID
+from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID, EDIT_SCHEDULE_ACTION_ID
+from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG_CALL_BACK_ID, \
+    get_edit_schedule_block
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +107,7 @@ class AppController:
         self.app.event(event="app_home_opened")(self.handle_app_home_opened)
         self.app.block_action(constraints=DELETE_SCHEDULE_ACTION_ID)(self.handle_clicked_delete_button)
         self.app.block_action(constraints=CREATE_BUTTON_ACTION_ID)(self.handle_clicked_create_schedule)
+        self.app.block_action(constraints=EDIT_SCHEDULE_ACTION_ID)(self.handle_clicked_edit_schedule)
         self.app.action(constraints=SKIP_CURRENT_MEMBER_ACTION_ID)(self.handle_clicked_confirm_skip)
         self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])(
             self.handle_submitted_create_schedule)
@@ -128,7 +130,7 @@ class AppController:
             logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
             return
 
-        schedule_id = actions[0]["block_id"]
+        schedule_id = actions[0]["block_id"].split("_")[0]
         logger.info(f"Confirmed Deletion of schedule {schedule_id}")
 
         self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule_id)
@@ -148,7 +150,27 @@ class AppController:
         trigger_id = body["trigger_id"]
 
         self.slack_client.views_open(trigger_id=trigger_id,
-                                     view=SCHEDULE_NEW_DIALOG)
+                                     view=get_edit_schedule_block())
+
+    def handle_clicked_edit_schedule(self, ack: Ack, body: SlackBody) -> None:
+        ack()
+        logger.info(f"User {body['user']} clicked the edit button")
+
+        actions = body["actions"]
+        trigger_id = body["trigger_id"]
+
+        if len(actions) != 1:
+            logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
+            return
+
+        schedule_id = actions[0]["block_id"].split("_")[0]
+
+        logger.info(body)
+
+        schedule = self.schedule_access.get_schedule(schedule_id=schedule_id)
+
+        self.slack_client.views_open(trigger_id=trigger_id,
+                                     view=get_edit_schedule_block(schedule=schedule))
 
     def handle_submitted_create_schedule(self, ack: Ack, body: SlackBody) -> None:
         ack()

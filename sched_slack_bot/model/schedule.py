@@ -10,8 +10,9 @@ from sched_slack_bot.utils.find_block_value import find_block_value
 from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackBody
 from sched_slack_bot.views.datetime_selector import DatetimeSelectorType
 from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
-from sched_slack_bot.views.schedule_dialog import DISPLAY_NAME_INPUT, USERS_INPUT, CHANNEL_INPUT, \
-    FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
+from sched_slack_bot.views.schedule_dialog import FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
+from sched_slack_bot.views.schedule_dialog_constants import DISPLAY_NAME_BLOCK_ID, USERS_INPUT_BLOCK_ID, \
+    CHANNEL_INPUT_BLOCK_ID
 
 logger = logging.getLogger(__name__)
 
@@ -117,15 +118,15 @@ class Schedule:
         state = submission_body["view"]["state"]
 
         display_name = find_block_value(state=state,
-                                        block_id=DISPLAY_NAME_INPUT.block_id)
+                                        block_id=DISPLAY_NAME_BLOCK_ID)
         display_name = _raise_if_not_string(value=display_name, name="display_name")
 
         members = find_block_value(state=state,
-                                   block_id=USERS_INPUT.block_id)
+                                   block_id=USERS_INPUT_BLOCK_ID)
         members = _raise_if_not_list(value=members, name="members")
 
         channel_id_to_notify_in = find_block_value(state=state,
-                                                   block_id=CHANNEL_INPUT.block_id)
+                                                   block_id=CHANNEL_INPUT_BLOCK_ID)
         channel_id_to_notify_in = _raise_if_not_string(value=channel_id_to_notify_in, name="channel_id_to_notify_in")
 
         next_rotation = _get_datetime_from_modal_submission(state=state, date_input=FIRST_ROTATION_INPUT)

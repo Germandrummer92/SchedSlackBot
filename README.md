@@ -63,8 +63,9 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
 * Set the `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` env variables
 * Setup a running mongo database instance and set the corresponding url in env variable `MONGO_URL`
 * Setup a reverse proxy (e.g [ngrok](https://ngrok.io))
+* ngrok http 3030
 * Update the url in your slack bot to the ngrok url
-* Start `python bin/app.py`
+* run the app `uvicorn bin.app:api --reload --port 3030`
 
 ### Image Attribution
 

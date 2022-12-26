@@ -8,8 +8,8 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.10"
 slack-bolt = ">=1.10.0,<2.0.0"
-pymongo = ">=4.0,<5.0"
-fastapi = "^0.88.0"
+pymongo = { extras = ["srv"], version = "^4.3.3" }
+fastapi = "^0.87.0"
 uvicorn = "^0.20.0"
 
 [tool.poetry.dev-dependencies]
