@@ -8,12 +8,16 @@ import pytest
 
 from sched_slack_bot.model.schedule import Schedule, SERIALIZATION_DATE_FORMAT
 from sched_slack_bot.utils.find_block_value import SlackValueContainerType
-from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackView, SlackBody, SlackBodyUser, \
-    SlackInputBlockState
-from sched_slack_bot.views.datetime_selector import DatetimeSelectorType
-from sched_slack_bot.views.input_block_with_block_id import InputBlockWithBlockId
-from sched_slack_bot.views.schedule_dialog import CHANNEL_INPUT, DISPLAY_NAME_INPUT, USERS_INPUT, \
-    FIRST_ROTATION_INPUT, SECOND_ROTATION_INPUT
+from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackView, SlackBody, SlackBodyUser, SlackInputBlockState
+from sched_slack_bot.views.schedule_dialog_block_ids import (
+    DISPLAY_NAME_BLOCK_ID,
+    USERS_INPUT_BLOCK_ID,
+    CHANNEL_INPUT_BLOCK_ID,
+    DatetimeSelectorType,
+    get_datetime_block_ids,
+    FIRST_ROTATION_LABEL,
+    SECOND_ROTATION_LABEL,
+)
 
 
 @pytest.fixture()
@@ -23,70 +27,105 @@ def next_rotation_date() -> datetime.datetime:
 
 @pytest.fixture
 def schedule(next_rotation_date: datetime.datetime) -> Schedule:
-    return Schedule(id=str(uuid.uuid4()),
-                    display_name="Rotation Schedule",
-                    members=["U1", "U2"],
-                    next_rotation=next_rotation_date,
-                    time_between_rotations=datetime.timedelta(hours=2),
-                    channel_id_to_notify_in="C1",
-                    created_by="creator")
+    return Schedule(
+        id=str(uuid.uuid4()),
+        display_name="Rotation Schedule",
+        members=["U1", "U2"],
+        next_rotation=next_rotation_date,
+        time_between_rotations=datetime.timedelta(hours=2),
+        channel_id_to_notify_in="C1",
+        created_by="creator",
+    )
 
 
 @pytest.fixture()
 def minimum_slack_body() -> SlackBody:
     return SlackBody(
-        view=SlackView(state=SlackState(values={}),
-                       id="someView"),
+        view=SlackView(state=SlackState(values={}), id="someView"),
         actions=[],
-        user=SlackBodyUser(id="userId", username="username",
-                           name="name", team_id="team"),
-        trigger_id="triggerId"
+        user=SlackBodyUser(id="userId", username="username", name="name", team_id="team"),
+        trigger_id="triggerId",
     )
 
 
-def _add_valid_datetime_values(datetime_value: datetime.datetime, slack_body: SlackBody,
-                               date_input: Dict[DatetimeSelectorType, InputBlockWithBlockId]) -> None:
-    slack_body["view"]["state"]["values"][date_input[DatetimeSelectorType.DATE].block_id] = {
+def _add_valid_datetime_values(
+    datetime_value: datetime.datetime, slack_body: SlackBody, date_input_block_ids: Dict[DatetimeSelectorType, str]
+) -> None:
+    slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.DATE]] = {
         "subBlock": SlackInputBlockState(
-            **{SlackValueContainerType.datepicker.value: datetime_value.date().isoformat(),  # type: ignore
-               "type": SlackValueContainerType.datepicker.name})}
-    slack_body["view"]["state"]["values"][date_input[DatetimeSelectorType.HOUR].block_id] = {
+            **{
+                SlackValueContainerType.datepicker.value: datetime_value.date().isoformat(),  # type: ignore
+                "type": SlackValueContainerType.datepicker.name,
+            }
+        )
+    }
+    slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.HOUR]] = {
         "subBlock": SlackInputBlockState(
-            **{SlackValueContainerType.static_select.value: {"value": str(datetime_value.hour)},  # type: ignore
-               "type": SlackValueContainerType.static_select.name})}
-    slack_body["view"]["state"]["values"][date_input[DatetimeSelectorType.MINUTE].block_id] = {
+            **{
+                SlackValueContainerType.static_select.value: {"value": str(datetime_value.hour)},  # type: ignore
+                "type": SlackValueContainerType.static_select.name,
+            }
+        )
+    }
+    slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.MINUTE]] = {
         "subBlock": SlackInputBlockState(
-            **{SlackValueContainerType.static_select.value: {"value": str(datetime_value.minute)},  # type: ignore
-               "type": SlackValueContainerType.static_select.name})}
+            **{
+                SlackValueContainerType.static_select.value: {"value": str(datetime_value.minute)},  # type: ignore
+                "type": SlackValueContainerType.static_select.name,
+            }
+        )
+    }
 
 
 @pytest.fixture()
 def valid_slack_body(minimum_slack_body: SlackBody, schedule: Schedule) -> SlackBody:
     valid_slack_body = copy.deepcopy(minimum_slack_body)
 
+    valid_slack_body["view"]["external_id"] = schedule.id
+
     # mypy cant deal with dynamic typed dicts
-    valid_slack_body["view"]["state"]["values"][DISPLAY_NAME_INPUT.block_id] = {
-        "subBlock": SlackInputBlockState(**{SlackValueContainerType.static_select.value: {  # type: ignore
-            "value": schedule.display_name, },
-            "type": SlackValueContainerType.static_select.name})}
-
-    valid_slack_body["view"]["state"]["values"][USERS_INPUT.block_id] = {
+    valid_slack_body["view"]["state"]["values"][DISPLAY_NAME_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(
-            **{SlackValueContainerType.multi_users_select.value: schedule.members,  # type: ignore
-               "type": SlackValueContainerType.multi_users_select.name})}
+            **{
+                SlackValueContainerType.static_select.value: {  # type: ignore
+                    "value": schedule.display_name,
+                },
+                "type": SlackValueContainerType.static_select.name,
+            }
+        )
+    }
 
-    valid_slack_body["view"]["state"]["values"][CHANNEL_INPUT.block_id] = {
+    valid_slack_body["view"]["state"]["values"][USERS_INPUT_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(
-            **{SlackValueContainerType.conversations_select.value: schedule.channel_id_to_notify_in,  # type: ignore
-               "type": SlackValueContainerType.conversations_select.name})}
+            **{
+                SlackValueContainerType.multi_users_select.value: schedule.members,  # type: ignore
+                "type": SlackValueContainerType.multi_users_select.name,
+            }
+        )
+    }
+
+    valid_slack_body["view"]["state"]["values"][CHANNEL_INPUT_BLOCK_ID] = {
+        "subBlock": SlackInputBlockState(
+            **{
+                SlackValueContainerType.conversations_select.value: schedule.channel_id_to_notify_in,  # type: ignore
+                "type": SlackValueContainerType.conversations_select.name,
+            }
+        )
+    }
 
     schedule_first_date = schedule.next_rotation
     schedule_second_date = schedule.next_rotation + schedule.time_between_rotations
 
-    _add_valid_datetime_values(datetime_value=schedule_first_date, slack_body=valid_slack_body,
-                               date_input=FIRST_ROTATION_INPUT)
-    _add_valid_datetime_values(datetime_value=schedule_second_date, slack_body=valid_slack_body,
-                               date_input=SECOND_ROTATION_INPUT)
+    _add_valid_datetime_values(
+        datetime_value=schedule_first_date,
+        slack_body=valid_slack_body,
+        date_input_block_ids=get_datetime_block_ids(label=FIRST_ROTATION_LABEL),
+    )
+    _add_valid_datetime_values(
+        datetime_value=schedule_second_date,
+        slack_body=valid_slack_body,
+        date_input_block_ids=get_datetime_block_ids(label=SECOND_ROTATION_LABEL),
+    )
 
     return valid_slack_body
 
@@ -125,7 +164,7 @@ def test_schedule_to_json_is_correct(schedule: Schedule) -> None:
         "time_between_rotations": schedule.time_between_rotations.total_seconds(),
         "channel_id_to_notify_in": schedule.channel_id_to_notify_in,
         "created_by": schedule.created_by,
-        "current_index": schedule.current_index
+        "current_index": schedule.current_index,
     }
 
 
@@ -135,28 +174,64 @@ def test_schedule_can_be_deserialized(schedule: Schedule) -> None:
     assert Schedule.from_json(json=json_schedule) == schedule
 
 
-def test_schedule_from_modal_submission_raises_with_no_values(schedule: Schedule,
-                                                              minimum_slack_body: SlackBody) -> None:
+def test_schedule_without_time_between_rotations_raises() -> None:
+    with pytest.raises(ValueError):
+        Schedule(
+            id="some_id",
+            display_name="some name",
+            members=["some_member"],
+            next_rotation=datetime.datetime.now() + datetime.timedelta(seconds=5),
+            time_between_rotations=datetime.timedelta(),
+            channel_id_to_notify_in="some channel id",
+            created_by="some user",
+            current_index=0,
+        )
+
+
+def test_schedule_without_members_raises() -> None:
+    with pytest.raises(ValueError):
+        Schedule(
+            id="some_id",
+            display_name="some name",
+            members=[],
+            next_rotation=datetime.datetime.now() + datetime.timedelta(seconds=5),
+            time_between_rotations=datetime.timedelta(seconds=100),
+            channel_id_to_notify_in="some channel id",
+            created_by="some user",
+            current_index=0,
+        )
+
+
+def test_schedule_from_modal_submission_raises_with_no_values(schedule: Schedule, minimum_slack_body: SlackBody) -> None:
     with pytest.raises(ValueError):
         Schedule.from_modal_submission(submission_body=minimum_slack_body)
 
 
-@pytest.mark.parametrize("missing_block_id", [CHANNEL_INPUT.block_id, USERS_INPUT.block_id,
-                                              DISPLAY_NAME_INPUT.block_id,
-                                              *[FIRST_ROTATION_INPUT[k].block_id for k in FIRST_ROTATION_INPUT.keys()],
-                                              *[SECOND_ROTATION_INPUT[k].block_id for k in
-                                                SECOND_ROTATION_INPUT.keys()],
-                                              ])
-def test_schedule_from_modal_submission_raises_with_missing_values(schedule: Schedule,
-                                                                   valid_slack_body: SlackBody,
-                                                                   missing_block_id: str) -> None:
+@pytest.mark.parametrize(
+    "missing_block_id",
+    [
+        CHANNEL_INPUT_BLOCK_ID,
+        USERS_INPUT_BLOCK_ID,
+        DISPLAY_NAME_BLOCK_ID,
+        *[
+            get_datetime_block_ids(label=FIRST_ROTATION_LABEL)[k]
+            for k in get_datetime_block_ids(label=FIRST_ROTATION_LABEL).keys()
+        ],
+        *[
+            get_datetime_block_ids(label=SECOND_ROTATION_LABEL)[k]
+            for k in get_datetime_block_ids(label=SECOND_ROTATION_LABEL).keys()
+        ],
+    ],
+)
+def test_schedule_from_modal_submission_raises_with_missing_values(
+    schedule: Schedule, valid_slack_body: SlackBody, missing_block_id: str
+) -> None:
     del valid_slack_body["view"]["state"]["values"][missing_block_id]
     with pytest.raises(ValueError):
         Schedule.from_modal_submission(submission_body=valid_slack_body)
 
 
-def test_schedule_from_modal_submission_works(schedule: Schedule,
-                                              valid_slack_body: SlackBody) -> None:
+def test_schedule_from_modal_submission_works(schedule: Schedule, valid_slack_body: SlackBody) -> None:
     from_modal = Schedule.from_modal_submission(submission_body=valid_slack_body)
 
     assert from_modal.display_name == schedule.display_name
@@ -165,3 +240,4 @@ def test_schedule_from_modal_submission_works(schedule: Schedule,
     assert from_modal.next_rotation == schedule.next_rotation
     assert from_modal.current_index == schedule.current_index
     assert from_modal.time_between_rotations == schedule.time_between_rotations
+    assert from_modal.id == schedule.id

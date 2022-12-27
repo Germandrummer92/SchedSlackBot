@@ -14,13 +14,15 @@ def next_rotation_date() -> datetime.datetime:
 
 @pytest.fixture
 def schedule(next_rotation_date: datetime.datetime) -> Schedule:
-    return Schedule(id=str(uuid.uuid4()),
-                    display_name="Rotation Schedule",
-                    members=["U1", "U2"],
-                    next_rotation=next_rotation_date,
-                    time_between_rotations=datetime.timedelta(seconds=2),
-                    channel_id_to_notify_in="C1",
-                    created_by="creator")
+    return Schedule(
+        id=str(uuid.uuid4()),
+        display_name="Rotation Schedule",
+        members=["U1", "U2"],
+        next_rotation=next_rotation_date,
+        time_between_rotations=datetime.timedelta(seconds=2),
+        channel_id_to_notify_in="C1",
+        created_by="creator",
+    )
 
 
 @pytest.fixture()
@@ -29,8 +31,9 @@ def reminder(schedule: Schedule) -> Reminder:
 
 
 class TestReminder:
-    def test_next_next_rotation_date_is_formatted_correctly(self, reminder: Reminder,
-                                                            next_rotation_date: datetime.datetime) -> None:
+    def test_next_next_rotation_date_is_formatted_correctly(
+        self, reminder: Reminder, next_rotation_date: datetime.datetime
+    ) -> None:
         assert reminder.next_next_rotation_date == "2500-12-01-12:00:00"
 
     def test_user_to_notify_is_correct(self, reminder: Reminder, schedule: Schedule) -> None:

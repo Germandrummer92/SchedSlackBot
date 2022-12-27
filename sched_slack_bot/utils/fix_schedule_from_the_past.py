@@ -9,10 +9,15 @@ logger = logging.getLogger(__name__)
 def fix_schedule_from_the_past(schedule: Schedule) -> Schedule:
     now = datetime.datetime.now()
     next_rotation = schedule.next_rotation
+    logger.info(f"Starting to fix schedule with previous date {schedule.next_rotation}")
+
     while now >= next_rotation:
-        logger.info(f"Had to fix schedule with previous date {next_rotation}, which"
-                    f" was before now {now}")
         next_rotation += schedule.time_between_rotations
+
+    logger.info(
+        f"Had to fix schedule with previous date {schedule.next_rotation}, which"
+        f" was before now {now}, fixed to {next_rotation}"
+    )
 
     return Schedule(
         id=schedule.id,
@@ -22,5 +27,5 @@ def fix_schedule_from_the_past(schedule: Schedule) -> Schedule:
         time_between_rotations=schedule.time_between_rotations,
         channel_id_to_notify_in=schedule.channel_id_to_notify_in,
         created_by=schedule.created_by,
-        current_index=schedule.current_index
+        current_index=schedule.current_index,
     )

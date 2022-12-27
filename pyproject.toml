@@ -6,18 +6,31 @@ authors = ["Daniel Draper <Germandrummer92@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 slack-bolt = ">=1.10.0,<2.0.0"
-pymongo = ">=4.0,<5.0"
-fastapi = "^0.88.0"
+pymongo = { extras = ["srv"], version = "^4.3.3" }
+fastapi = "^0.87.0"
 uvicorn = "^0.20.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+black = { extras = ["d"], version = "^22.12.0" }
 pytest = ">=6.2.5,<8.0.0"
 coveralls = ">=3.0.0,<4.0.0"
 mypy = ">=0.910,<1.0.0"
 flake8 = ">=4.0.0,<7.0.0"
 pre-commit = "^2.21.0"
+
+[tool.black]
+line-length = 128
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = 'pymongo.*'
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

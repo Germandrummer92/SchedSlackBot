@@ -1,11 +1,11 @@
 import logging
 
 from fastapi import FastAPI, Request, Response
-
 from slack_bolt.adapter.fastapi import SlackRequestHandler
+
 from sched_slack_bot.controller import AppController
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 

@@ -19,6 +19,7 @@ class SlackState(TypedDict, total=False):
 class SlackView(TypedDict, total=False):
     state: SlackState
     id: str
+    external_id: str
 
 
 class SlackAction(TypedDict, total=False):

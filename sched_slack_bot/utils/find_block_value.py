@@ -1,5 +1,5 @@
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Optional, Union, List
 
 from sched_slack_bot.utils.slack_typing_stubs import SlackState
@@ -7,8 +7,7 @@ from sched_slack_bot.utils.slack_typing_stubs import SlackState
 logger = logging.getLogger(__name__)
 
 
-class SlackValueContainerType(Enum):
-    value: str
+class SlackValueContainerType(StrEnum):
     plain_text_input = "value"
     multi_users_select = "selected_users"
     conversations_select = "selected_conversation"

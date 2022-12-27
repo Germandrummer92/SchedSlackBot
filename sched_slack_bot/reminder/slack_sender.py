@@ -10,15 +10,17 @@ class SlackReminderSender(ReminderSender):
         self._client = client
 
     def send_reminder(self, reminder: Reminder) -> None:
-        self._client.chat_postMessage(channel=reminder.channel_id_to_notify_in,
-                                      # used for screen readers, if blocks can't be rendered
-                                      text=get_reminder_text(reminder=reminder),
-                                      blocks=get_reminder_blocks(reminder=reminder)
-                                      )
+        self._client.chat_postMessage(
+            channel=reminder.channel_id_to_notify_in,
+            # used for screen readers, if blocks can't be rendered
+            text=get_reminder_text(reminder=reminder),
+            blocks=get_reminder_blocks(reminder=reminder),
+        )
 
     def send_skip_message(self, reminder: Reminder) -> None:
-        self._client.chat_postMessage(channel=reminder.channel_id_to_notify_in,
-                                      # used for screen readers, if blocks can't be rendered
-                                      text=get_skip_text(reminder=reminder),
-                                      blocks=get_skip_blocks(reminder=reminder)
-                                      )
+        self._client.chat_postMessage(
+            channel=reminder.channel_id_to_notify_in,
+            # used for screen readers, if blocks can't be rendered
+            text=get_skip_text(reminder=reminder),
+            blocks=get_skip_blocks(reminder=reminder),
+        )

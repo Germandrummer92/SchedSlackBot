@@ -17,8 +17,8 @@ from sched_slack_bot.utils.fix_schedule_from_the_past import fix_schedule_from_t
 from sched_slack_bot.utils.slack_typing_stubs import SlackBody, SlackEvent
 from sched_slack_bot.views.app_home import get_app_home_view, CREATE_BUTTON_ACTION_ID
 from sched_slack_bot.views.reminder_blocks import SKIP_CURRENT_MEMBER_ACTION_ID
-from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID
-from sched_slack_bot.views.schedule_dialog import SCHEDULE_NEW_DIALOG, SCHEDULE_NEW_DIALOG_CALL_BACK_ID
+from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID, EDIT_SCHEDULE_ACTION_ID
+from sched_slack_bot.views.schedule_dialog import get_edit_schedule_block, ScheduleDialogCallback
 
 logger = logging.getLogger(__name__)
 
@@ -41,17 +41,13 @@ class AppController:
         slack_signing_secret = os.environ.get("SLACK_SIGNING_SECRET")
 
         if mongo_url is None or slack_bot_token is None or slack_signing_secret is None:
-            raise RuntimeError("Environment variables 'MONGO_URL', "
-                               "'SLACK_BOT_TOKEN' and 'SLACK_SIGNING_SECRET' are required")
+            raise RuntimeError("Environment variables 'MONGO_URL', 'SLACK_BOT_TOKEN' and 'SLACK_SIGNING_SECRET' are required")
 
         self._schedule_access = MongoScheduleAccess(mongo_url=mongo_url)
         self._slack_client = WebClient(token=slack_bot_token)
         self._reminder_sender = SlackReminderSender(client=self._slack_client)
         self._reminder_scheduler = ReminderScheduler(reminder_executed_callback=self.handle_reminder_executed)
-        self._app = App(name="sched_slack_bot",
-                        token=slack_bot_token,
-                        signing_secret=slack_signing_secret,
-                        logger=logger)
+        self._app = App(name="sched_slack_bot", token=slack_bot_token, signing_secret=slack_signing_secret, logger=logger)
 
         self._start_all_saved_schedules()
         self._register_listeners()
@@ -97,8 +93,11 @@ class AppController:
         logger.info(f"Found {len(saved_schedules)} schedules to start reminders for!")
 
         schedules_to_start = list(map(fix_schedule_from_the_past, saved_schedules))
-        self.reminder_scheduler.schedule_all_reminders(schedules=schedules_to_start,
-                                                       reminder_sender=self.reminder_sender)
+
+        for schedule_to_update in schedules_to_start:
+            self.schedule_access.update_schedule(schedule_id_to_update=schedule_to_update.id, new_schedule=schedule_to_update)
+
+        self.reminder_scheduler.schedule_all_reminders(schedules=schedules_to_start, reminder_sender=self.reminder_sender)
 
         logger.info(f"Started {len(schedules_to_start)} reminders!")
 
@@ -106,13 +105,21 @@ class AppController:
         self.app.event(event="app_home_opened")(self.handle_app_home_opened)
         self.app.block_action(constraints=DELETE_SCHEDULE_ACTION_ID)(self.handle_clicked_delete_button)
         self.app.block_action(constraints=CREATE_BUTTON_ACTION_ID)(self.handle_clicked_create_schedule)
+        self.app.block_action(constraints=EDIT_SCHEDULE_ACTION_ID)(self.handle_clicked_edit_schedule)
         self.app.action(constraints=SKIP_CURRENT_MEMBER_ACTION_ID)(self.handle_clicked_confirm_skip)
-        self.app.view(constraints=SCHEDULE_NEW_DIALOG_CALL_BACK_ID, matchers=[is_view_submission])(
-            self.handle_submitted_create_schedule)
+        self.app.view(constraints=ScheduleDialogCallback.CREATE_DIALOG, matchers=[is_view_submission])(
+            self.handle_submitted_create_schedule
+        )
+        self.app.view(constraints=ScheduleDialogCallback.EDIT_DIALOG, matchers=[is_view_submission])(
+            self.handle_submitted_edit_schedule
+        )
+
+    @staticmethod
+    def _get_schedule_id_from_block_id(block_id: str) -> str:
+        return block_id.split("_")[0]
 
     def handle_reminder_executed(self, next_schedule: Schedule) -> None:
-        self.schedule_access.update_schedule(schedule_id_to_update=next_schedule.id,
-                                             new_schedule=next_schedule)
+        self.schedule_access.update_schedule(schedule_id_to_update=next_schedule.id, new_schedule=next_schedule)
 
     def handle_app_home_opened(self, event: SlackEvent) -> None:
         user = event["user"]
@@ -124,11 +131,11 @@ class AppController:
         ack()
         actions = body["actions"]
 
-        if len(actions) != 1:
+        if len(actions) != 1 or actions[0]["action_id"] != DELETE_SCHEDULE_ACTION_ID:
             logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
             return
 
-        schedule_id = actions[0]["block_id"]
+        schedule_id = AppController._get_schedule_id_from_block_id(block_id=actions[0]["block_id"])
         logger.info(f"Confirmed Deletion of schedule {schedule_id}")
 
         self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule_id)
@@ -137,8 +144,7 @@ class AppController:
 
     def _update_app_home(self, user_id: str) -> None:
         self.slack_client.views_publish(
-            user_id=user_id,
-            view=get_app_home_view(schedules=self.schedule_access.get_available_schedules())
+            user_id=user_id, view=get_app_home_view(schedules=self.schedule_access.get_available_schedules())
         )
 
     def handle_clicked_create_schedule(self, ack: Ack, body: SlackBody) -> None:
@@ -147,8 +153,42 @@ class AppController:
 
         trigger_id = body["trigger_id"]
 
-        self.slack_client.views_open(trigger_id=trigger_id,
-                                     view=SCHEDULE_NEW_DIALOG)
+        self.slack_client.views_open(
+            trigger_id=trigger_id, view=get_edit_schedule_block(callback=ScheduleDialogCallback.CREATE_DIALOG)
+        )
+
+    def handle_clicked_edit_schedule(self, ack: Ack, body: SlackBody) -> None:
+        ack()
+        logger.info(f"User {body['user']} clicked the edit button")
+
+        actions = body["actions"]
+        trigger_id = body["trigger_id"]
+
+        if len(actions) != 1 or actions[0]["action_id"] != EDIT_SCHEDULE_ACTION_ID:
+            logger.error(f"Got an unexpected list of actions for the edit button: {actions}")
+            return
+
+        schedule_id = AppController._get_schedule_id_from_block_id(block_id=actions[0]["block_id"])
+
+        schedule = self.schedule_access.get_schedule(schedule_id=schedule_id)
+
+        edit_schedule_block = get_edit_schedule_block(schedule=schedule, callback=ScheduleDialogCallback.EDIT_DIALOG)
+        self.slack_client.views_open(trigger_id=trigger_id, view=edit_schedule_block)
+
+    def handle_submitted_edit_schedule(self, ack: Ack, body: SlackBody) -> None:
+        ack()
+
+        logger.info(f"Updating Schedule from {body['user']}")
+
+        schedule = Schedule.from_modal_submission(submission_body=body)
+
+        self.schedule_access.update_schedule(schedule_id_to_update=schedule.id, new_schedule=schedule)
+
+        self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule.id)
+        self.reminder_scheduler.schedule_reminder(schedule=schedule, reminder_sender=self.reminder_sender)
+
+        logger.info(f"Updated Schedule {schedule}")
+        self._update_app_home(user_id=body["user"]["id"])
 
     def handle_submitted_create_schedule(self, ack: Ack, body: SlackBody) -> None:
         ack()
@@ -185,10 +225,8 @@ class AppController:
 
         schedule_with_skipped_index = dataclasses.replace(schedule, current_index=schedule.next_index)
 
-        self.schedule_access.update_schedule(schedule_id_to_update=schedule_id,
-                                             new_schedule=schedule_with_skipped_index)
+        self.schedule_access.update_schedule(schedule_id_to_update=schedule_id, new_schedule=schedule_with_skipped_index)
         self.reminder_scheduler.remove_reminder_for_schedule(schedule_id=schedule_id)
-        self.reminder_scheduler.schedule_reminder(schedule=schedule_with_skipped_index,
-                                                  reminder_sender=self.reminder_sender)
+        self.reminder_scheduler.schedule_reminder(schedule=schedule_with_skipped_index, reminder_sender=self.reminder_sender)
 
         logger.info(f"Successfully skipped current schedule user from {body['user']} for schedule {schedule_id}")
