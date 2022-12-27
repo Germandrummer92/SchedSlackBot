@@ -5,7 +5,6 @@ from sched_slack_bot.model.schedule import Schedule
 
 
 class ScheduleAccess(abc.ABC):
-
     @abc.abstractmethod
     def get_schedule(self, schedule_id: str) -> Optional[Schedule]:
         raise NotImplementedError("Not Implemented")
