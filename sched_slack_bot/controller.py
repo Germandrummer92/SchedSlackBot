@@ -170,8 +170,6 @@ class AppController:
 
         schedule_id = AppController._get_schedule_id_from_block_id(block_id=actions[0]["block_id"])
 
-        logger.info(body)
-
         schedule = self.schedule_access.get_schedule(schedule_id=schedule_id)
 
         edit_schedule_block = get_edit_schedule_block(schedule=schedule, callback=ScheduleDialogCallback.EDIT_DIALOG)
