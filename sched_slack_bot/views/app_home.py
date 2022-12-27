@@ -1,3 +1,4 @@
+import datetime
 from typing import List
 
 from slack_sdk.models.blocks import (
@@ -34,6 +35,11 @@ def get_app_home_view(schedules: List[Schedule]) -> View:
         blocks=[
             HeaderBlock(text=PlainTextObject(text="Welcome to the SchedSlack Bot :tada:")),
             SectionBlock(text=MarkdownTextObject(text="Your *One-Stop-Shop* for setting up rotating :calendar: schedules.")),
+            SectionBlock(
+                text=MarkdownTextObject(
+                    text=f":warning: This bot is running in timezone *{datetime.datetime.now().astimezone().tzname()}* :warning:"
+                )
+            ),
             SectionBlock(
                 text=MarkdownTextObject(
                     text="Powered by <https://github.com/Germandrummer92/SchedSlackBot"

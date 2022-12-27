@@ -43,7 +43,9 @@ def get_datetime_selector(label: str, schedule_date: Optional[datetime.datetime]
 
     blocks[DatetimeSelectorType.HOUR] = InputBlockWithBlockId(
         label=block_ids[DatetimeSelectorType.HOUR],
-        hint=PlainTextObject(text="The Hour of the first Rotation/Reminder"),
+        hint=PlainTextObject(
+            text=f"The Hour of the first Rotation/Reminder (in {datetime.datetime.now().astimezone().tzname()})"
+        ),
         element=StaticSelectElement(initial_option=initial_hour, option_groups=[option_group_hours]),
         block_id=block_ids[DatetimeSelectorType.HOUR],
     )

@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/Germandrummer92/SchedSlackBot/badge.svg?branch=main)](https://coveralls.io/github/Germandrummer92/SchedSlackBot?branch=main)
 ![Image of a Calendar](https://github.com/Germandrummer92/SchedSlackBot/raw/main/assets/calendar.jpg "Rotational Scheduling")
 
-A Kubernetes self-hosted Slack bot able to setup rotating schedules for Reminders.
+A Kubernetes self-hosted Slack bot able to set up rotating schedules for Reminders.
 
 Your One-Stop-Shop for setting up rotating :calendar: schedules.
 
@@ -25,6 +25,9 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
 
 * Ability to delete existing reminders
 ![Image of a deletion](https://github.com/Germandrummer92/SchedSlackBot/raw/main/assets/delete.png "Delete")
+*
+* Ability to edit existing reminders
+![Image of an edit](https://github.com/Germandrummer92/SchedSlackBot/raw/main/assets/edit.png "Edit")
 
 
 ## Setting up a new Slack bot
@@ -59,10 +62,10 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
 * Install poetry `curl -sSL https://install.python-poetry.org/install-poetry.py | python3.11 -`
 * Install dependencies with poetry `poetry install`
 * Setup pre-commit hook: `pre-commit install`
-* Follow the [#Setting up a new Slack bot](#Setting up a new Slack bot) guide to setup a test bot in your own workspace
+* Follow the [#Setting up a new Slack bot](#setting-up-a-new-slack-bot) guide to set up a test bot in your own workspace
 * Set the `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` env variables
-* Setup a running mongo database instance and set the corresponding url in env variable `MONGO_URL`
-* Setup a reverse proxy (e.g [ngrok](https://ngrok.io))
+* Set up a running mongo database instance and set the corresponding url in env variable `MONGO_URL`
+* Set up a reverse proxy (e.g [ngrok](https://ngrok.io))
 * ngrok http 3030
 * Update the url in your slack bot to the ngrok url
 * run the app `uvicorn bin.app:api --reload --port 3030`
