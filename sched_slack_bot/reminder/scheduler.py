@@ -56,8 +56,10 @@ class ReminderScheduler:
         interval = (schedule.next_rotation - now).total_seconds()
         reminder = Reminder(schedule=schedule)
         logger.info(f"Scheduling Reminder at {interval}s from now")
-        timer = threading.Timer(interval=interval, function=self.execute_reminder,
-                                kwargs={"reminder": reminder, "reminder_sender": reminder_sender})
+        timer = threading.Timer(
+            interval=interval, function=self.execute_reminder, kwargs={"reminder": reminder, "reminder_sender": reminder_sender}
+        )
+        timer.daemon = True
         self._add_timer(timer=timer, schedule_id=schedule.id)
 
     def execute_reminder(self, reminder: Reminder, reminder_sender: ReminderSender) -> None:
@@ -70,8 +72,7 @@ class ReminderScheduler:
         self._remove_timer(thread_ident=thread_ident, schedule_id=reminder.schedule_id)
 
         next_schedule = reminder.next_schedule
-        self.schedule_reminder(schedule=next_schedule,
-                               reminder_sender=reminder_sender)
+        self.schedule_reminder(schedule=next_schedule, reminder_sender=reminder_sender)
 
         if self._reminder_executed_callback is not None:
             self._reminder_executed_callback(next_schedule)

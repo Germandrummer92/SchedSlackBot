@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 
 DISPLAY_NAME_BLOCK_ID = "NEW_SCHEDULE_DISPLAY_NAME_INPUT"
@@ -7,6 +9,8 @@ USERS_INPUT_BLOCK_ID = "NEW_SCHEDULE_USERS_INPUT"
 FIRST_ROTATION_LABEL = "First Rotation Reminder/Rotation"
 SECOND_ROTATION_LABEL = "Second Rotation Reminder/Rotation"
 
+CREATE_NEW_SCHEDULE_VIEW_ID = "NEW_DIALOG"
+
 
 class DatetimeSelectorType(Enum):
     DATE = "DATE"
@@ -15,6 +19,8 @@ class DatetimeSelectorType(Enum):
 
 
 def get_datetime_block_ids(label: str) -> dict[DatetimeSelectorType, str]:
-    return {DatetimeSelectorType.DATE: f"{label} Date",
-            DatetimeSelectorType.HOUR: f"{label} Hour",
-            DatetimeSelectorType.MINUTE: f"{label} Minute"}
+    return {
+        DatetimeSelectorType.DATE: f"{label} Date",
+        DatetimeSelectorType.HOUR: f"{label} Hour",
+        DatetimeSelectorType.MINUTE: f"{label} Minute",
+    }
