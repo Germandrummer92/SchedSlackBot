@@ -18,7 +18,7 @@ def schedule_in_the_past(datetime_now: datetime.datetime) -> Schedule:
     return Schedule(
         id="id",
         display_name="display",
-        members=[],
+        members=["some_member", "some_other_member"],
         next_rotation=datetime_now - datetime.timedelta(hours=1),
         time_between_rotations=datetime.timedelta(days=14),
         channel_id_to_notify_in="channelId",
@@ -32,7 +32,7 @@ def schedule_in_the_future(datetime_now: datetime.datetime) -> Schedule:
     return Schedule(
         id="id",
         display_name="display",
-        members=[],
+        members=["some_member", "some_other_member"],
         next_rotation=datetime_now + datetime.timedelta(hours=1),
         time_between_rotations=datetime.timedelta(days=14),
         channel_id_to_notify_in="channelId",

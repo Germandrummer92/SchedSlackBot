@@ -71,6 +71,9 @@ class Schedule:
         if self.time_between_rotations.total_seconds() == 0:
             raise ValueError("A schedule with 0 time between rotations cannot be handled!")
 
+        if len(self.members) == 0:
+            raise ValueError("A schedule with 0 members cannot be handled!")
+
     @property
     def next_index(self) -> int:
         return (self.current_index + 1) % len(self.members)

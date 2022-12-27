@@ -174,6 +174,34 @@ def test_schedule_can_be_deserialized(schedule: Schedule) -> None:
     assert Schedule.from_json(json=json_schedule) == schedule
 
 
+def test_schedule_without_time_between_rotations_raises() -> None:
+    with pytest.raises(ValueError):
+        Schedule(
+            id="some_id",
+            display_name="some name",
+            members=["some_member"],
+            next_rotation=datetime.datetime.now() + datetime.timedelta(seconds=5),
+            time_between_rotations=datetime.timedelta(),
+            channel_id_to_notify_in="some channel id",
+            created_by="some user",
+            current_index=0,
+        )
+
+
+def test_schedule_without_members_raises() -> None:
+    with pytest.raises(ValueError):
+        Schedule(
+            id="some_id",
+            display_name="some name",
+            members=[],
+            next_rotation=datetime.datetime.now() + datetime.timedelta(seconds=5),
+            time_between_rotations=datetime.timedelta(seconds=100),
+            channel_id_to_notify_in="some channel id",
+            created_by="some user",
+            current_index=0,
+        )
+
+
 def test_schedule_from_modal_submission_raises_with_no_values(schedule: Schedule, minimum_slack_body: SlackBody) -> None:
     with pytest.raises(ValueError):
         Schedule.from_modal_submission(submission_body=minimum_slack_body)
@@ -212,3 +240,4 @@ def test_schedule_from_modal_submission_works(schedule: Schedule, valid_slack_bo
     assert from_modal.next_rotation == schedule.next_rotation
     assert from_modal.current_index == schedule.current_index
     assert from_modal.time_between_rotations == schedule.time_between_rotations
+    assert from_modal.id == schedule.id

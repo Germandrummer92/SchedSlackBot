@@ -12,11 +12,6 @@ from sched_slack_bot.reminder.scheduler import ReminderScheduler
 from sched_slack_bot.reminder.sender import ReminderSender
 
 
-@pytest.fixture()
-def mocked_callback() -> mock.MagicMock:
-    return mock.MagicMock()
-
-
 @pytest.fixture(params=[mock.MagicMock(), None])
 def scheduler(request: Any) -> ReminderScheduler:
     if isinstance(request.param, mock.MagicMock):
@@ -108,3 +103,17 @@ def test_stop_reminder(
         now = datetime.datetime.now()
 
     reminder_sender.assert_not_called()
+
+
+@mock.patch("sched_slack_bot.reminder.scheduler.threading.Timer")
+def test_schedule_reminder_starts_daemon_threads(
+    mocked_timer: mock.MagicMock,
+    scheduler: ReminderScheduler,
+    reminder: Reminder,
+    schedule: Schedule,
+    reminder_sender: mock.MagicMock,
+) -> None:
+    scheduler.schedule_reminder(schedule=schedule, reminder_sender=reminder_sender)
+
+    # need to explicitly assert on true value, MagicMock is truthy otherwise
+    assert mocked_timer.return_value.daemon is True
