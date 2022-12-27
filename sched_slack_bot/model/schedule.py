@@ -67,7 +67,7 @@ class Schedule:
     created_by: str
     current_index: int = 0
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.time_between_rotations.total_seconds() == 0:
             raise ValueError("A schedule with 0 time between rotations cannot be handled!")
 

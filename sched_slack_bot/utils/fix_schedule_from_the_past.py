@@ -10,8 +10,7 @@ def fix_schedule_from_the_past(schedule: Schedule) -> Schedule:
     now = datetime.datetime.now()
     next_rotation = schedule.next_rotation
     logger.info(f"Starting to fix schedule with previous date {schedule.next_rotation}")
-    if schedule.time_between_rotations == 0:
-        raise ValueError("")
+
     while now >= next_rotation:
         next_rotation += schedule.time_between_rotations
 

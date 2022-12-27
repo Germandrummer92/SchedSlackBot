@@ -1,5 +1,5 @@
 import logging
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -11,15 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 class MongoScheduleAccess(ScheduleAccess):
-    def __init__(self, mongo_url: str, port: Optional[str] = None, db_name: str = "sched-slack-bot",
-                 collection_name: str = "schedules"):
-        self._client = MongoClient(host=mongo_url,
-                                   port=port)
+    def __init__(
+        self, mongo_url: str, port: Optional[str] = None, db_name: str = "sched-slack-bot", collection_name: str = "schedules"
+    ):
+        self._client: MongoClient[dict[str, Any]] = MongoClient(host=mongo_url, port=int(port) if port is not None else port)
         self._db_name = db_name
         self._collection_name = collection_name
 
     @property
-    def _collection(self) -> Collection:
+    def _collection(self) -> Collection[dict[str, Any]]:
         return self._client.get_database(name=self._db_name).get_collection(name=self._collection_name)
 
     def get_available_schedules(self) -> List[Schedule]:

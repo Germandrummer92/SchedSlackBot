@@ -59,13 +59,13 @@ def get_display_name_input(schedule: Optional[Schedule] = None) -> InputBlockWit
 
 
 def get_first_rotation_block(schedule: Optional[Schedule] = None) -> Dict[DatetimeSelectorType, InputBlockWithBlockId]:
-    return get_datetime_selector(label=FIRST_ROTATION_LABEL, schedule_date=schedule.next_rotation)
+    schedule_date = schedule.next_rotation if schedule is not None else None
+    return get_datetime_selector(label=FIRST_ROTATION_LABEL, schedule_date=schedule_date)
 
 
 def get_second_rotation_block(schedule: Optional[Schedule] = None) -> Dict[DatetimeSelectorType, InputBlockWithBlockId]:
-    return get_datetime_selector(
-        label=SECOND_ROTATION_LABEL, schedule_date=schedule.next_rotation + schedule.time_between_rotations
-    )
+    schedule_date = schedule.next_rotation + schedule.time_between_rotations if schedule is not None else None
+    return get_datetime_selector(label=SECOND_ROTATION_LABEL, schedule_date=schedule_date)
 
 
 class ScheduleDialogCallback(StrEnum):

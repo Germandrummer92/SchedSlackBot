@@ -25,6 +25,13 @@ line-length = 128
 target-version = ['py311']
 include = '\.pyi?$'
 
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = 'pymongo.*'
+ignore_missing_imports = true
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
