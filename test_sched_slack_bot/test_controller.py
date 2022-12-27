@@ -143,7 +143,7 @@ def test_handle_clicked_create_opens_schedule_dialog(
     mocked_slack_client.views_open.assert_called_once_with(trigger_id=slack_body["trigger_id"], view=get_edit_schedule_block())
 
 
-def test_handle_clicked_handle_submit_creates_new_schedule(
+def test_handle_submitted_create_schedule_creates_new_schedule(
     controller_with_mocks: AppController,
     mocked_schedule_access: mock.MagicMock,
     mocked_slack_client: mock.MagicMock,
@@ -163,6 +163,31 @@ def test_handle_clicked_handle_submit_creates_new_schedule(
     )
     ack.assert_called_once()
     mocked_schedule_access.save_schedule.assert_called_once_with(schedule=schedule)
+    assert_published_home_view(mocked_slack_client=mocked_slack_client, schedules=[schedule], user=slack_body["user"]["id"])
+
+
+def test_handle_submitted_edit_schedule_updates_existing_schedule(
+    controller_with_mocks: AppController,
+    mocked_schedule_access: mock.MagicMock,
+    mocked_slack_client: mock.MagicMock,
+    slack_body: SlackBody,
+    mocked_reminder_scheduler: mock.MagicMock,
+    mocked_reminder_sender: mock.MagicMock,
+    schedule: Schedule,
+) -> None:
+    mocked_schedule_access.get_available_schedules.return_value = [schedule]
+    ack = mock.MagicMock()
+
+    with mock.patch("sched_slack_bot.controller.Schedule.from_modal_submission") as mocked_from_model_submission:
+        mocked_from_model_submission.return_value = schedule
+        controller_with_mocks.handle_submitted_edit_schedule(ack=ack, body=slack_body)
+
+    mocked_schedule_access.update_schedule.assert_called_once_with(schedule_id_to_update=schedule.id, new_schedule=schedule)
+    mocked_reminder_scheduler.remove_reminder_for_schedule.assert_called_once_with(schedule_id=schedule.id)
+    mocked_reminder_scheduler.schedule_reminder.assert_called_once_with(
+        schedule=schedule, reminder_sender=mocked_reminder_sender
+    )
+    ack.assert_called_once()
     assert_published_home_view(mocked_slack_client=mocked_slack_client, schedules=[schedule], user=slack_body["user"]["id"])
 
 
