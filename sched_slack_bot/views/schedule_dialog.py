@@ -26,6 +26,13 @@ from sched_slack_bot.views.schedule_dialog_block_ids import (
     CREATE_NEW_SCHEDULE_VIEW_ID,
 )
 
+CREATION_CHANNEL_PLACEHOLDER = "#channel"
+
+CREATE_NEW_SCHEDULE_DISPLAY_NAME = "New Rotating Schedule"
+
+EDIT_MODAL_TYPE = "Edit"
+CREATE_MODAL_TYPE = "Create"
+
 
 def get_users_input(schedule: Optional[Schedule] = None) -> InputBlockWithBlockId:
     initial_users = None if schedule is None else schedule.members
@@ -38,7 +45,7 @@ def get_users_input(schedule: Optional[Schedule] = None) -> InputBlockWithBlockI
 
 
 def get_channel_input(schedule: Optional[Schedule] = None) -> InputBlockWithBlockId:
-    placeholder = "#channel" if schedule is None else None
+    placeholder = CREATION_CHANNEL_PLACEHOLDER if schedule is None else None
     initial_conversation = None if schedule is None else schedule.channel_id_to_notify_in
     return InputBlockWithBlockId(
         label="Channel To Notify",
@@ -49,7 +56,7 @@ def get_channel_input(schedule: Optional[Schedule] = None) -> InputBlockWithBloc
 
 
 def get_display_name_input(schedule: Optional[Schedule] = None) -> InputBlockWithBlockId:
-    initial_value = "New Rotating Schedule" if schedule is None else schedule.display_name
+    initial_value = CREATE_NEW_SCHEDULE_DISPLAY_NAME if schedule is None else schedule.display_name
     return InputBlockWithBlockId(
         label="Display Name",
         hint=PlainTextObject(text="Name for your rotating schedule"),
@@ -76,7 +83,7 @@ class ScheduleDialogCallback(StrEnum):
 def get_edit_schedule_block(
     schedule: Optional[Schedule] = None, callback: ScheduleDialogCallback = ScheduleDialogCallback.CREATE_DIALOG
 ) -> View:
-    modal_type = "Create" if schedule is None else "Edit"
+    modal_type = CREATE_MODAL_TYPE if schedule is None else EDIT_MODAL_TYPE
     external_id = schedule.id if schedule is not None else CREATE_NEW_SCHEDULE_VIEW_ID
     return View(
         type="modal",

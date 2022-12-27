@@ -9,7 +9,7 @@ import pytest
 from slack_bolt import App
 from slack_sdk import WebClient
 
-from sched_slack_bot.controller import AppController
+from sched_slack_bot.controller import AppController, UnstartedControllerException
 from sched_slack_bot.data.schedule_access import ScheduleAccess
 from sched_slack_bot.model.reminder import Reminder
 from sched_slack_bot.model.schedule import Schedule
@@ -17,7 +17,8 @@ from sched_slack_bot.reminder.scheduler import ReminderScheduler
 from sched_slack_bot.reminder.sender import ReminderSender
 from sched_slack_bot.utils.slack_typing_stubs import SlackEvent, SlackBody, SlackBodyUser, SlackView, SlackState, SlackAction
 from sched_slack_bot.views.app_home import get_app_home_view
-from sched_slack_bot.views.schedule_dialog import get_edit_schedule_block
+from sched_slack_bot.views.schedule_blocks import DELETE_SCHEDULE_ACTION_ID, EDIT_SCHEDULE_ACTION_ID
+from sched_slack_bot.views.schedule_dialog import get_edit_schedule_block, ScheduleDialogCallback
 
 
 @pytest.fixture
@@ -91,6 +92,11 @@ def slack_body() -> SlackBody:
     )
 
 
+def test_app_raises_if_unstarted(controller: AppController) -> None:
+    with pytest.raises(UnstartedControllerException):
+        _ = controller.app
+
+
 @pytest.mark.parametrize("required_missing_variable_name", ["MONGO_URL", "SLACK_BOT_TOKEN", "SLACK_SIGNING_SECRET"])
 def test_controller_fails_without_required_environment_variables(
     controller: AppController, required_missing_variable_name: str
@@ -98,6 +104,16 @@ def test_controller_fails_without_required_environment_variables(
     os.environ.pop(required_missing_variable_name, None)
     with pytest.raises(RuntimeError):
         controller.start()
+
+
+def test_start_all_saved_schedules_saves_fixed_schedules(
+    controller_with_mocks: AppController, schedule: Schedule, mocked_schedule_access: mock.MagicMock
+) -> None:
+    mocked_schedule_access.get_available_schedules.return_value = [schedule]
+
+    controller_with_mocks._start_all_saved_schedules()
+
+    mocked_schedule_access.update_schedule.assert_called_once_with(schedule_id_to_update=schedule.id, new_schedule=schedule)
 
 
 def test_handle_reminder_executed_saves_updated_schedule(
@@ -127,7 +143,7 @@ def assert_published_home_view(mocked_slack_client: mock.MagicMock, schedules: L
     mocked_slack_client.views_publish.assert_called_once_with(user_id=user, view=get_app_home_view(schedules=schedules))
 
 
-def test_handle_clicked_create_opens_schedule_dialog(
+def test_handle_clicked_create_opens_create_schedule_dialog(
     controller_with_mocks: AppController,
     mocked_schedule_access: mock.MagicMock,
     mocked_slack_client: mock.MagicMock,
@@ -141,6 +157,52 @@ def test_handle_clicked_create_opens_schedule_dialog(
 
     ack.assert_called_once()
     mocked_slack_client.views_open.assert_called_once_with(trigger_id=slack_body["trigger_id"], view=get_edit_schedule_block())
+
+
+@pytest.mark.parametrize(
+    "actions",
+    [
+        [],
+        [
+            SlackAction(action_id=EDIT_SCHEDULE_ACTION_ID, block_id="id"),
+            SlackAction(action_id="some_wrong_action_id", block_id="id"),
+        ],
+        [SlackAction(action_id="some_wrong_action_id", block_id="id")],
+    ],
+)
+def test_handle_clicked_edit_schedule_does_nothing_with_wrong_actions(
+    controller_with_mocks: AppController,
+    mocked_slack_client: mock.MagicMock,
+    slack_body: SlackBody,
+    actions: list[SlackAction],
+) -> None:
+    slack_body["actions"] = actions
+
+    ack = mock.MagicMock()
+    controller_with_mocks.handle_clicked_edit_schedule(ack=ack, body=slack_body)
+
+    ack.assert_called_once()
+    mocked_slack_client.views_open.assert_not_called()
+
+
+def test_handle_clicked_edit_schedule_opens_edit_dialog(
+    controller_with_mocks: AppController,
+    mocked_schedule_access: mock.MagicMock,
+    mocked_slack_client: mock.MagicMock,
+    slack_body: SlackBody,
+    schedule: Schedule,
+) -> None:
+    mocked_schedule_access.get_schedule.return_value = schedule
+    slack_body["actions"] = [SlackAction(action_id=EDIT_SCHEDULE_ACTION_ID, block_id=schedule.id)]
+
+    ack = mock.MagicMock()
+    controller_with_mocks.handle_clicked_edit_schedule(ack=ack, body=slack_body)
+
+    ack.assert_called_once()
+    mocked_slack_client.views_open.assert_called_once_with(
+        trigger_id=slack_body["trigger_id"],
+        view=get_edit_schedule_block(schedule=schedule, callback=ScheduleDialogCallback.EDIT_DIALOG),
+    )
 
 
 def test_handle_submitted_create_schedule_creates_new_schedule(
@@ -207,6 +269,34 @@ def test_handle_delete_does_nothing_without_schedule(
     mocked_schedule_access.delete_schedule.assert_not_called()
 
 
+@pytest.mark.parametrize(
+    "actions",
+    [
+        [],
+        [
+            SlackAction(action_id=DELETE_SCHEDULE_ACTION_ID, block_id="id"),
+            SlackAction(action_id="some_wrong_action_id", block_id="id"),
+        ],
+        [SlackAction(action_id="some_wrong_action_id", block_id="id")],
+    ],
+)
+def test_handle_delete_does_nothing_with_wrong_action(
+    controller_with_mocks: AppController,
+    mocked_schedule_access: mock.MagicMock,
+    slack_body: SlackBody,
+    mocked_reminder_scheduler: mock.MagicMock,
+    actions: list[SlackAction],
+) -> None:
+    ack = mock.MagicMock()
+    slack_body["actions"] = actions
+    controller_with_mocks.handle_clicked_delete_button(ack=ack, body=slack_body)
+
+    ack.assert_called_once()
+
+    mocked_schedule_access.delete_schedule.assert_not_called()
+    mocked_reminder_scheduler.remove_reminder_for_schedule.assert_not_called()
+
+
 def test_handle_delete_deletes_matching_schedule(
     controller_with_mocks: AppController,
     mocked_schedule_access: mock.MagicMock,
@@ -215,7 +305,7 @@ def test_handle_delete_deletes_matching_schedule(
     mocked_reminder_scheduler: mock.MagicMock,
     schedule: Schedule,
 ) -> None:
-    slack_body["actions"] = [SlackAction(action_id="DELETE", block_id=schedule.id)]
+    slack_body["actions"] = [SlackAction(action_id=DELETE_SCHEDULE_ACTION_ID, block_id=schedule.id)]
 
     ack = mock.MagicMock()
     controller_with_mocks.handle_clicked_delete_button(ack=ack, body=slack_body)

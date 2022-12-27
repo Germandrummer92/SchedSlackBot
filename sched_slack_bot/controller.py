@@ -131,7 +131,7 @@ class AppController:
         ack()
         actions = body["actions"]
 
-        if len(actions) != 1:
+        if len(actions) != 1 or actions[0]["action_id"] != DELETE_SCHEDULE_ACTION_ID:
             logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
             return
 
@@ -164,8 +164,8 @@ class AppController:
         actions = body["actions"]
         trigger_id = body["trigger_id"]
 
-        if len(actions) != 1:
-            logger.error(f"Got an unexpected list of actions for the delete button: {actions}")
+        if len(actions) != 1 or actions[0]["action_id"] != EDIT_SCHEDULE_ACTION_ID:
+            logger.error(f"Got an unexpected list of actions for the edit button: {actions}")
             return
 
         schedule_id = AppController._get_schedule_id_from_block_id(block_id=actions[0]["block_id"])
