@@ -1126,14 +1126,14 @@ testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (
 
 [[package]]
 name = "slack-bolt"
-version = "1.16.1"
+version = "1.16.2"
 description = "The Bolt Framework for Python"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "slack_bolt-1.16.1-py2.py3-none-any.whl", hash = "sha256:96b584c0f568fa0be5c8177cc5628a7772ff28067fc5a6bfc174d170048a36e5"},
-    {file = "slack_bolt-1.16.1.tar.gz", hash = "sha256:ecef3da9b7c98b0d4333141c461caa405fb62f4b79a7bead6a35445164473cf7"},
+    {file = "slack_bolt-1.16.2-py2.py3-none-any.whl", hash = "sha256:3046c4b1157b698a7783042387bf5d634f6f933cb98e644b2f60be0741368a04"},
+    {file = "slack_bolt-1.16.2.tar.gz", hash = "sha256:03f88603d0316ee161450d6fe1c2e4dd02962a8dfb8526f10d5323f9c095ec65"},
 ]
 
 [package.dependencies]
