@@ -9,7 +9,7 @@ license = "MIT"
 python = "^3.11"
 slack-bolt = ">=1.10.0,<2.0.0"
 pymongo = { extras = ["srv"], version = "^4.3.3" }
-fastapi = "^0.96.0"
+fastapi = "^0.97.0"
 uvicorn = "^0.22.0"
 
 [tool.poetry.group.dev.dependencies]
