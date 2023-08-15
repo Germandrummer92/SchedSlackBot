@@ -54,7 +54,7 @@ def _add_valid_datetime_values(
     slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.DATE]] = {
         "subBlock": SlackInputBlockState(
             **{
-                SlackValueContainerType.datepicker.value: datetime_value.date().isoformat(),  # type: ignore
+                SlackValueContainerType.datepicker.value: datetime_value.date().isoformat(),
                 "type": SlackValueContainerType.datepicker.name,
             }
         )
@@ -62,7 +62,7 @@ def _add_valid_datetime_values(
     slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.HOUR]] = {
         "subBlock": SlackInputBlockState(
             **{
-                SlackValueContainerType.static_select.value: {"value": str(datetime_value.hour)},  # type: ignore
+                SlackValueContainerType.static_select.value: {"value": str(datetime_value.hour)},
                 "type": SlackValueContainerType.static_select.name,
             }
         )
@@ -70,7 +70,7 @@ def _add_valid_datetime_values(
     slack_body["view"]["state"]["values"][date_input_block_ids[DatetimeSelectorType.MINUTE]] = {
         "subBlock": SlackInputBlockState(
             **{
-                SlackValueContainerType.static_select.value: {"value": str(datetime_value.minute)},  # type: ignore
+                SlackValueContainerType.static_select.value: {"value": str(datetime_value.minute)},
                 "type": SlackValueContainerType.static_select.name,
             }
         )
@@ -87,7 +87,7 @@ def valid_slack_body(minimum_slack_body: SlackBody, schedule: Schedule) -> Slack
     valid_slack_body["view"]["state"]["values"][DISPLAY_NAME_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(
             **{
-                SlackValueContainerType.static_select.value: {  # type: ignore
+                SlackValueContainerType.static_select.value: {
                     "value": schedule.display_name,
                 },
                 "type": SlackValueContainerType.static_select.name,
@@ -98,7 +98,7 @@ def valid_slack_body(minimum_slack_body: SlackBody, schedule: Schedule) -> Slack
     valid_slack_body["view"]["state"]["values"][USERS_INPUT_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(
             **{
-                SlackValueContainerType.multi_users_select.value: schedule.members,  # type: ignore
+                SlackValueContainerType.multi_users_select.value: schedule.members,
                 "type": SlackValueContainerType.multi_users_select.name,
             }
         )
@@ -107,7 +107,7 @@ def valid_slack_body(minimum_slack_body: SlackBody, schedule: Schedule) -> Slack
     valid_slack_body["view"]["state"]["values"][CHANNEL_INPUT_BLOCK_ID] = {
         "subBlock": SlackInputBlockState(
             **{
-                SlackValueContainerType.conversations_select.value: schedule.channel_id_to_notify_in,  # type: ignore
+                SlackValueContainerType.conversations_select.value: schedule.channel_id_to_notify_in,
                 "type": SlackValueContainerType.conversations_select.name,
             }
         )
