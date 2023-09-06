@@ -10,6 +10,7 @@ from sched_slack_bot.utils.find_block_value import find_block_value
 from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackBody
 from sched_slack_bot.views.schedule_dialog_block_ids import (
     DISPLAY_NAME_BLOCK_ID,
+    SHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER,
     USERS_INPUT_BLOCK_ID,
     CHANNEL_INPUT_BLOCK_ID,
     DatetimeSelectorType,
@@ -150,6 +151,9 @@ class Schedule:
 
         if schedule_id.startswith(CREATE_NEW_SCHEDULE_VIEW_ID):
             schedule_id = str(uuid.uuid4())
+
+        if SHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER in schedule_id:
+            schedule_id = schedule_id.split(SHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER)[0]
 
         return Schedule(
             id=schedule_id,

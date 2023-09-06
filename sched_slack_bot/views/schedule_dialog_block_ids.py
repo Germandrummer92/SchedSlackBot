@@ -11,6 +11,8 @@ SECOND_ROTATION_LABEL = "Second Rotation Reminder/Rotation"
 
 CREATE_NEW_SCHEDULE_VIEW_ID = "NEW_DIALOG"
 
+SHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER = "::"
+
 
 class DatetimeSelectorType(Enum):
     DATE = "DATE"
