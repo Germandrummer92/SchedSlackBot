@@ -19,7 +19,7 @@ from sched_slack_bot.views.schedule_dialog import (
     get_second_rotation_block,
 )
 from sched_slack_bot.views.schedule_dialog_block_ids import (
-    CREATE_NEW_SCHEDULE_VIEW_ID,
+    CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX,
     FIRST_ROTATION_LABEL,
     SECOND_ROTATION_LABEL,
 )
@@ -47,8 +47,8 @@ def test_get_create_schedule_dialog() -> None:
     assert create_block.blocks[0].text is not None
     assert CREATE_MODAL_TYPE in create_block.blocks[0].text.text
 
-    if create_block.external_id is not None:
-        assert create_block.external_id.startswith(CREATE_NEW_SCHEDULE_VIEW_ID)
+    assert create_block.external_id is not None
+    assert create_block.external_id.startswith(CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX)
 
 
 def test_get_edit_schedule_dialog(schedule: Schedule) -> None:
@@ -60,8 +60,8 @@ def test_get_edit_schedule_dialog(schedule: Schedule) -> None:
     assert create_block.blocks[0].text is not None
     assert EDIT_MODAL_TYPE in create_block.blocks[0].text.text
 
-    if create_block.external_id is not None:
-        assert create_block.external_id.startswith(schedule.id)
+    assert create_block.external_id is not None
+    assert create_block.external_id.startswith(schedule.id)
 
 
 def test_get_display_name_input_creation() -> None:
