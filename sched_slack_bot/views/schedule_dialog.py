@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 from typing import Optional, Dict
+import uuid
 
 from slack_sdk.models.blocks import (
     HeaderBlock,
@@ -84,7 +85,9 @@ def get_edit_schedule_block(
     schedule: Optional[Schedule] = None, callback: ScheduleDialogCallback = ScheduleDialogCallback.CREATE_DIALOG
 ) -> View:
     modal_type = CREATE_MODAL_TYPE if schedule is None else EDIT_MODAL_TYPE
+    # make sure external id is unique globally: https://github.com/slackapi/node-slack-sdk/issues/1012#issuecomment-684818059
     external_id = schedule.id if schedule is not None else CREATE_NEW_SCHEDULE_VIEW_ID
+    external_id = f"{external_id}-{str(uuid.uuid4())}"
     return View(
         type="modal",
         external_id=external_id,

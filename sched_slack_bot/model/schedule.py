@@ -148,7 +148,7 @@ class Schedule:
 
         schedule_id = submission_body["view"]["external_id"]
 
-        if schedule_id == CREATE_NEW_SCHEDULE_VIEW_ID:
+        if schedule_id.startswith(CREATE_NEW_SCHEDULE_VIEW_ID):
             schedule_id = str(uuid.uuid4())
 
         return Schedule(
