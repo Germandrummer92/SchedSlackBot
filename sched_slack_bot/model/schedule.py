@@ -145,7 +145,7 @@ class Schedule:
             state=state, date_input_block_ids=get_datetime_block_ids(label=SECOND_ROTATION_LABEL)
         )
 
-        time_between_rotations = second_rotation - next_rotation
+        time_between_rotations = abs(second_rotation - next_rotation)
 
         schedule_id = submission_body["view"]["external_id"]
 
