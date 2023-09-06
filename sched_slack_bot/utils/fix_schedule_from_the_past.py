@@ -12,7 +12,7 @@ def fix_schedule_from_the_past(schedule: Schedule) -> Schedule:
     logger.info(f"Starting to fix schedule with previous date {schedule.next_rotation}")
 
     while now >= next_rotation:
-        next_rotation += schedule.time_between_rotations
+        next_rotation += abs(schedule.time_between_rotations)
 
     logger.info(
         f"Had to fix schedule with previous date {schedule.next_rotation}, which"
