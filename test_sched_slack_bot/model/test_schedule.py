@@ -17,6 +17,8 @@ from sched_slack_bot.views.schedule_dialog_block_ids import (
     get_datetime_block_ids,
     FIRST_ROTATION_LABEL,
     SECOND_ROTATION_LABEL,
+    SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER,
+    CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX,
 )
 
 
@@ -81,7 +83,7 @@ def _add_valid_datetime_values(
 def valid_slack_body(minimum_slack_body: SlackBody, schedule: Schedule) -> SlackBody:
     valid_slack_body = copy.deepcopy(minimum_slack_body)
 
-    valid_slack_body["view"]["external_id"] = schedule.id
+    valid_slack_body["view"]["external_id"] = f"{schedule.id}{SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER}{str(uuid.uuid4())}"
 
     # mypy cant deal with dynamic typed dicts
     valid_slack_body["view"]["state"]["values"][DISPLAY_NAME_BLOCK_ID] = {
@@ -231,7 +233,7 @@ def test_schedule_from_modal_submission_raises_with_missing_values(
         Schedule.from_modal_submission(submission_body=valid_slack_body)
 
 
-def test_schedule_from_modal_submission_works(schedule: Schedule, valid_slack_body: SlackBody) -> None:
+def test_schedule_from_modal_submission_works_for_edit(schedule: Schedule, valid_slack_body: SlackBody) -> None:
     from_modal = Schedule.from_modal_submission(submission_body=valid_slack_body)
 
     assert from_modal.display_name == schedule.display_name
@@ -241,3 +243,25 @@ def test_schedule_from_modal_submission_works(schedule: Schedule, valid_slack_bo
     assert from_modal.current_index == schedule.current_index
     assert from_modal.time_between_rotations == schedule.time_between_rotations
     assert from_modal.id == schedule.id
+
+
+def test_schedule_from_modal_submission_works_for_create(schedule: Schedule, valid_slack_body: SlackBody) -> None:
+    valid_slack_body["view"][
+        "external_id"
+    ] = f"{CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX}{SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER}{str(uuid.uuid4())}"
+
+    from_modal = Schedule.from_modal_submission(submission_body=valid_slack_body)
+
+    assert from_modal.display_name == schedule.display_name
+    assert from_modal.members == schedule.members
+    assert from_modal.channel_id_to_notify_in == schedule.channel_id_to_notify_in
+    assert from_modal.next_rotation == schedule.next_rotation
+    assert from_modal.current_index == schedule.current_index
+    assert from_modal.time_between_rotations == schedule.time_between_rotations
+    assert from_modal.id != schedule.id
+
+
+def test_schedule_from_modal_submission_raises_with_wrong_external_id(schedule: Schedule, valid_slack_body: SlackBody) -> None:
+    valid_slack_body["view"]["external_id"] = "broken"
+    with pytest.raises(ValueError):
+        Schedule.from_modal_submission(submission_body=valid_slack_body)

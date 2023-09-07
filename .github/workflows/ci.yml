@@ -86,7 +86,7 @@ jobs:
 
   build_and_push_docker_image:
     permissions:
-      packages: write
+      packages: write-all
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

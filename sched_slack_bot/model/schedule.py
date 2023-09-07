@@ -151,9 +151,11 @@ class Schedule:
 
         if schedule_id.startswith(CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX):
             schedule_id = str(uuid.uuid4())
-
-        if SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER in schedule_id:
+        elif SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER in schedule_id:
             schedule_id = schedule_id.split(SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER)[0]
+        else:
+            raise ValueError(f"external id of schedule doesn't contain delimiter '{SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER}'"
+                             f"nor prefix '{CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX}', received instead: '{schedule_id}'")
 
         return Schedule(
             id=schedule_id,
