@@ -151,12 +151,14 @@ def test_handle_clicked_create_opens_create_schedule_dialog(
     schedule: Schedule,
 ) -> None:
     mocked_schedule_access.get_available_schedules.return_value = [schedule]
+    with mock.patch(target="sched_slack_bot.views.schedule_dialog.uuid", return_value="uuid"):
+        ack = mock.MagicMock()
+        controller_with_mocks.handle_clicked_create_schedule(ack=ack, body=slack_body)
 
-    ack = mock.MagicMock()
-    controller_with_mocks.handle_clicked_create_schedule(ack=ack, body=slack_body)
-
-    ack.assert_called_once()
-    mocked_slack_client.views_open.assert_called_once_with(trigger_id=slack_body["trigger_id"], view=get_edit_schedule_block())
+        ack.assert_called_once()
+        mocked_slack_client.views_open.assert_called_once_with(
+            trigger_id=slack_body["trigger_id"], view=get_edit_schedule_block()
+        )
 
 
 @pytest.mark.parametrize(
@@ -194,15 +196,15 @@ def test_handle_clicked_edit_schedule_opens_edit_dialog(
 ) -> None:
     mocked_schedule_access.get_schedule.return_value = schedule
     slack_body["actions"] = [SlackAction(action_id=EDIT_SCHEDULE_ACTION_ID, block_id=schedule.id)]
+    with mock.patch(target="sched_slack_bot.views.schedule_dialog.uuid", return_value="uuid"):
+        ack = mock.MagicMock()
+        controller_with_mocks.handle_clicked_edit_schedule(ack=ack, body=slack_body)
 
-    ack = mock.MagicMock()
-    controller_with_mocks.handle_clicked_edit_schedule(ack=ack, body=slack_body)
-
-    ack.assert_called_once()
-    mocked_slack_client.views_open.assert_called_once_with(
-        trigger_id=slack_body["trigger_id"],
-        view=get_edit_schedule_block(schedule=schedule, callback=ScheduleDialogCallback.EDIT_DIALOG),
-    )
+        ack.assert_called_once()
+        mocked_slack_client.views_open.assert_called_once_with(
+            trigger_id=slack_body["trigger_id"],
+            view=get_edit_schedule_block(schedule=schedule, callback=ScheduleDialogCallback.EDIT_DIALOG),
+        )
 
 
 def test_handle_submitted_create_schedule_creates_new_schedule(

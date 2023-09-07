@@ -37,6 +37,7 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
 * Copy & paste app_manifest.yml
 ![Image of creating a slack app](https://github.com/Germandrummer92/SchedSlackBot/raw/main/assets/slack_bot_creation.png "Creating a Slack bot")
 * Adjust the request url to something valid (either ngrok or already final k8s deployment url) (you can change it later)
+* Make sure the url is verified in the App Manifest section. (it should have the prefix /slack/events)
 * Install to your workspace
 ![Image of installing the slack bot](https://github.com/Germandrummer92/SchedSlackBot/raw/main/assets/install.png "Installing the Slack bot")
 * Copy the Slack_Bot_Token and Slack_Signing_Secret for local development or deployment

@@ -10,13 +10,14 @@ from sched_slack_bot.utils.find_block_value import find_block_value
 from sched_slack_bot.utils.slack_typing_stubs import SlackState, SlackBody
 from sched_slack_bot.views.schedule_dialog_block_ids import (
     DISPLAY_NAME_BLOCK_ID,
+    SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER,
     USERS_INPUT_BLOCK_ID,
     CHANNEL_INPUT_BLOCK_ID,
     DatetimeSelectorType,
     get_datetime_block_ids,
     FIRST_ROTATION_LABEL,
     SECOND_ROTATION_LABEL,
-    CREATE_NEW_SCHEDULE_VIEW_ID,
+    CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX,
 )
 
 logger = logging.getLogger(__name__)
@@ -144,12 +145,19 @@ class Schedule:
             state=state, date_input_block_ids=get_datetime_block_ids(label=SECOND_ROTATION_LABEL)
         )
 
-        time_between_rotations = second_rotation - next_rotation
+        time_between_rotations = abs(second_rotation - next_rotation)
 
         schedule_id = submission_body["view"]["external_id"]
 
-        if schedule_id == CREATE_NEW_SCHEDULE_VIEW_ID:
+        if schedule_id.startswith(CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX):
             schedule_id = str(uuid.uuid4())
+        elif SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER in schedule_id:
+            schedule_id = schedule_id.split(SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER)[0]
+        else:
+            raise ValueError(
+                f"external id of schedule doesn't contain delimiter '{SCHEDULE_VIEW_ID_SCHEDULE_ID_DELIMITER}'"
+                f"nor prefix '{CREATE_NEW_SCHEDULE_VIEW_ID_PREFIX}', received instead: '{schedule_id}'"
+            )
 
         return Schedule(
             id=schedule_id,
