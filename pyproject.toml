@@ -10,7 +10,7 @@ python = "^3.11"
 slack-bolt = ">=1.10.0,<2.0.0"
 pymongo = { extras = ["srv"], version = "^4.7.2" }
 fastapi = "^0.111.0"
-uvicorn = "^0.29.0"
+uvicorn = "^0.30.1"
 
 [tool.poetry.group.dev.dependencies]
 black = { extras = ["d"], version = "^24.4.2" }
