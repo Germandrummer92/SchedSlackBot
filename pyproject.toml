@@ -13,7 +13,7 @@ fastapi = "^0.111.1"
 uvicorn = "^0.30.3"
 
 [tool.poetry.group.dev.dependencies]
-black = { extras = ["d"], version = "^24.4.2" }
+black = { extras = ["d"], version = "^24.8.0" }
 pytest = ">=6.2.5,<9.0.0"
 coveralls = ">=3.0.0,<4.0.0"
 mypy = ">=0.910,<2.0.0"
