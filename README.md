@@ -64,12 +64,12 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
 * Install dependencies with poetry `poetry install`
 * Setup pre-commit hook: `pre-commit install`
 * Follow the [#Setting up a new Slack bot](#setting-up-a-new-slack-bot) guide to set up a test bot in your own workspace
-* Set the `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN` env variables
+* Set the `SLACK_SIGNING_SECRET` (Signing Secret) and `SLACK_BOT_TOKEN` (Bot User OAuth Token) env variables
 * Set up a running mongo database instance and set the corresponding url in env variable `MONGO_URL`
 * Set up a reverse proxy (e.g [ngrok](https://ngrok.io))
-* ngrok http 3030
-* Update the url in your slack bot to the ngrok url
-* run the app `uvicorn bin.app:api --reload --port 3030`
+* `ngrok http 3030`
+* Update the url in your slack bot to the ngrok url (should end in `/slack/events`)
+* run the app `poetry run uvicorn bin.app:api --reload --port 3030`
 
 ### Image Attribution
 

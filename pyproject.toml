@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "schedslackbot"
-version = "1.0.0"
+version = "1.0.1"
 description = "A Slack-Bot for managing rotating schedules"
 authors = ["Daniel Draper <Germandrummer92@gmail.com>"]
 license = "MIT"
