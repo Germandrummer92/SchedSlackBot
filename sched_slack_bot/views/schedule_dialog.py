@@ -62,7 +62,7 @@ def get_display_name_input(schedule: Optional[Schedule] = None) -> InputBlockWit
     return InputBlockWithBlockId(
         label="Display Name",
         hint=PlainTextObject(text="Name for your rotating schedule"),
-        element=PlainTextInputElement(initial_value=initial_value),
+        element=PlainTextInputElement(initial_value=initial_value, max_length=99),
         block_id=DISPLAY_NAME_BLOCK_ID,
     )
 
