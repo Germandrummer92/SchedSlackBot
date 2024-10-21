@@ -1064,32 +1064,31 @@ testing = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metad
 
 [[package]]
 name = "slack-bolt"
-version = "1.20.1"
+version = "1.21.0"
 description = "The Bolt Framework for Python"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "slack_bolt-1.20.1-py2.py3-none-any.whl", hash = "sha256:8fa26e72b0e55c18c1d34a73558e7fe2150bdc7c947de780b938fdb1d7e854fe"},
-    {file = "slack_bolt-1.20.1.tar.gz", hash = "sha256:4657e592339797b9b804547a21e6b35dd8e2cd1eab676bfb23960660aae049fd"},
+    {file = "slack_bolt-1.21.0-py2.py3-none-any.whl", hash = "sha256:12f99fe26f7b1b762955053ebce303d4e2394cee1e3058e35a270185f2a31e40"},
+    {file = "slack_bolt-1.21.0.tar.gz", hash = "sha256:438bee336440e78222064416c75e9353ee57e4c0377f2f41bda2212acad2387a"},
 ]
 
 [package.dependencies]
-slack-sdk = ">=3.26.0,<4"
+slack-sdk = ">=3.33.1,<4"
 
 [[package]]
 name = "slack-sdk"
-version = "3.26.0"
+version = "3.33.1"
 description = "The Slack API Platform SDK for Python"
 optional = false
-python-versions = ">=3.6.0"
+python-versions = ">=3.6"
 files = [
-    {file = "slack_sdk-3.26.0-py2.py3-none-any.whl", hash = "sha256:b84c2d93163166eb682e290c19334683c2d0f0cb4a5479c809706b44038fdda1"},
-    {file = "slack_sdk-3.26.0.tar.gz", hash = "sha256:147946f388ce73b17c377b823759fcb39c0eca7444ca0a942dc12a3940a4f44f"},
+    {file = "slack_sdk-3.33.1-py2.py3-none-any.whl", hash = "sha256:ef93beec3ce9c8f64da02fd487598a05ec4bc9c92ceed58f122dbe632691cbe2"},
+    {file = "slack_sdk-3.33.1.tar.gz", hash = "sha256:e328bb661d95db5f66b993b1d64288ac7c72201a745b4c7cf8848dafb7b74e40"},
 ]
 
 [package.extras]
-optional = ["SQLAlchemy (>=1.4,<3)", "aiodns (>1.0)", "aiohttp (>=3.7.3,<4)", "boto3 (<=2)", "websocket-client (>=1,<2)", "websockets (>=10,<11)"]
-testing = ["Flask (>=1,<2)", "Flask-Sockets (>=0.2,<1)", "Jinja2 (==3.0.3)", "Werkzeug (<2)", "black (==22.8.0)", "boto3 (<=2)", "click (==8.0.4)", "flake8 (>=5,<6)", "itsdangerous (==1.1.0)", "moto (>=3,<4)", "psutil (>=5,<6)", "pytest (>=6.2.5,<7)", "pytest-asyncio (<1)", "pytest-cov (>=2,<3)"]
+optional = ["SQLAlchemy (>=1.4,<3)", "aiodns (>1.0)", "aiohttp (>=3.7.3,<4)", "boto3 (<=2)", "websocket-client (>=1,<2)", "websockets (>=9.1,<14)"]
 
 [[package]]
 name = "sniffio"
