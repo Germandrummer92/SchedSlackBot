@@ -9,6 +9,10 @@ class SlackBodyUser(TypedDict, total=False):
 
 
 class SlackInputBlockState(TypedDict, total=False):
+    selected_conversation: str
+    selected_date: str
+    selected_option: Dict[str, str]
+    selected_users: List[str]
     type: str
 
 
