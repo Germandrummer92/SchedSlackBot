@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "schedslackbot"
+name = "sched_slack_bot"
 version = "1.0.1"
 description = "A Slack-Bot for managing rotating schedules"
 authors = ["Daniel Draper <Germandrummer92@gmail.com>"]
