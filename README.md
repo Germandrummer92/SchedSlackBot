@@ -59,8 +59,8 @@ Your One-Stop-Shop for setting up rotating :calendar: schedules.
 
 ## Development
 
-* Install python3.11 `sudo apt-get -y python3.11`
-* Install poetry `curl -sSL https://install.python-poetry.org/install-poetry.py | python3.11 -`
+* Install python3.13 `sudo apt-get -y python3.13`
+* Install poetry `curl -sSL https://install.python-poetry.org/install-poetry.py | python3.13 -`
 * Install dependencies with poetry `poetry install`
 * Setup pre-commit hook: `pre-commit install`
 * Follow the [#Setting up a new Slack bot](#setting-up-a-new-slack-bot) guide to set up a test bot in your own workspace
