@@ -1511,14 +1511,14 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "uvicorn"
-version = "0.34.2"
+version = "0.34.3"
 description = "The lightning-fast ASGI server."
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "uvicorn-0.34.2-py3-none-any.whl", hash = "sha256:deb49af569084536d269fe0a6d67e3754f104cf03aba7c11c40f01aadf33c403"},
-    {file = "uvicorn-0.34.2.tar.gz", hash = "sha256:0e929828f6186353a80b58ea719861d2629d766293b6d19baf086ba31d4f3328"},
+    {file = "uvicorn-0.34.3-py3-none-any.whl", hash = "sha256:16246631db62bdfbf069b0645177d6e8a77ba950cfedbfd093acef9444e4d885"},
+    {file = "uvicorn-0.34.3.tar.gz", hash = "sha256:35919a9a979d7a59334b6b10e05d77c1d0d574c50e0fc98b8b1a0f165708b55a"},
 ]
 
 [package.dependencies]
@@ -1526,7 +1526,7 @@ click = ">=7.0"
 h11 = ">=0.8"
 
 [package.extras]
-standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.14.0,!=0.15.0,!=0.15.1) ; sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\"", "watchfiles (>=0.13)", "websockets (>=10.4)"]
+standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)", "python-dotenv (>=0.13)", "pyyaml (>=5.1)", "uvloop (>=0.15.1) ; sys_platform != \"win32\" and sys_platform != \"cygwin\" and platform_python_implementation != \"PyPy\"", "watchfiles (>=0.13)", "websockets (>=10.4)"]
 
 [[package]]
 name = "virtualenv"
@@ -1649,4 +1649,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "35086950f7b9da256d8929b708b58b27656d100c671b36f957ff1cf2a6d45899"
+content-hash = "2f82165ac5409127c7f474192070527c52ead2652f0f42b5a35c8fc3dd276079"
