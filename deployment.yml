@@ -14,7 +14,7 @@ spec:
         app: sched-slack-bot
     spec:
       containers:
-        - image: ghcr.io/germandrummer92/schedslackbot:v10
+        - image: ghcr.io/germandrummer92/schedslackbot:v11
           imagePullPolicy: Always
           name: sched-slack-bot
           ports:
