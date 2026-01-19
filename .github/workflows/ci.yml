@@ -10,7 +10,7 @@ jobs:
   flake8:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
@@ -28,7 +28,7 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
@@ -46,7 +46,7 @@ jobs:
   mypy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
@@ -64,7 +64,7 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
@@ -89,7 +89,7 @@ jobs:
       packages: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         name: Check out code
       - uses: mr-smithers-excellent/docker-build-push@v6.8
         name: Build & push Docker image
