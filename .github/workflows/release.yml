@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         name: Check out code
-      - uses: mr-smithers-excellent/docker-build-push@v6.8
+      - uses: mr-smithers-excellent/docker-build-push@v6.10
         name: Build & push Docker image
         with:
           image: schedslackbot
